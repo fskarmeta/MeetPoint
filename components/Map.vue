@@ -21,7 +21,7 @@ onMounted(() => {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
   map.on("click", function (ev) {
-    console.log(ev.latlng); // ev is an event object (MouseEvent in this case)
+    console.log(ev.latlng);
   });
 
   const length = friends.length;
@@ -42,23 +42,7 @@ onMounted(() => {
     }
   ).addTo(map);
 
-  // const distancesMap = {};
-  // const latLng2Meters = 111139;
-
   for (const { lat, lng, name } of friends) {
-    // for (const friend of friends) {
-    //   if (friend.name !== name) {
-    //     const distance =
-    //       Math.pow(
-    //         Math.pow(lat - friend.lat, 2) + Math.pow(lng - friend.lng, 2),
-    //         1 / 2
-    //       ) * latLng2Meters;
-
-    //     distancesMap[name]
-    //       ? distancesMap[name].push(distance)
-    //       : (distancesMap[name] = [distance]);
-    //   }
-    // }
     const friendCoordinates: [number, number] = [lat, lng];
 
     const friendIcon = L.icon({
@@ -77,39 +61,6 @@ onMounted(() => {
     const tooltip = L.tooltip().setContent(name);
     line.bindTooltip(tooltip).addTo(map);
   }
-  // console.log(distancesMap);
-  // const distancesArray = Object.values(distancesMap).reduce(
-  //   (a: number[], b: number[]) => [...a, ...b],
-  //   []
-  // ) as number[];
-
-  // const uniqueDistanceValues = [
-  //   ...new Set(distancesArray.sort((a, b) => a - b)),
-  // ];
-  // const minDistance = uniqueDistanceValues[0];
-  // const maxDistante = uniqueDistanceValues[uniqueDistanceValues.length - 1];
-  // const averageDistance =
-  //   uniqueDistanceValues.reduce((a, b) => a + b) / uniqueDistanceValues.length;
-
-  // friends.forEach(({ lat, lng }) => {
-  //   const color = createRandomColor();
-  //   L.circle([lat, lng], {
-  //     radius: minDistance,
-  //     color,
-  //     fill: false,
-  //   }).addTo(map);
-  //   L.circle([lat, lng], {
-  //     radius: maxDistante,
-  //     color,
-  //     fill: false,
-  //   }).addTo(map);
-  //   L.circle([lat, lng], {
-  //     radius: averageDistance,
-  //     color,
-  //     fill: false,
-  //   }).addTo(map);
-  // });
-
   layer.addTo(map);
 });
 </script>
