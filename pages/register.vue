@@ -2,6 +2,6 @@
 <template>
   <div class="w-screen h-screen">
     <h1>holi</h1>
-    <Map />
+    <RegisterMap />
   </div>
 </template>
