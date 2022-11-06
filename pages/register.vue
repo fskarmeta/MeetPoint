@@ -1,7 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePageMeta({
+  pageTransition: false,
+});
+</script>
 <template>
-  <div class="w-screen h-screen">
-    <h1>holi</h1>
-    <RegisterMap />
+  <div class="place-self-center">
+    <FormRegister />
   </div>
 </template>

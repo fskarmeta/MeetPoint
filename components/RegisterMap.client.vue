@@ -6,30 +6,31 @@ import useMap from "~~/composables/useMap";
 const map: Ref<L.Map> = ref();
 const marker = ref();
 
+const emit = defineEmits(["onChangeCoords"]);
+
 onMounted(async () => {
   if (process.client) {
     await nextTick();
-    map.value = useMap("map", {
+    map.value = useMap("register-map", {
       center: [0, 0],
       zoom: 2,
     });
     map.value.on("click", function (ev) {
       if (marker.value) {
-        console.log("yep");
         map.value.removeLayer(marker.value);
       }
       marker.value = L.marker(ev.latlng, {
-        title: "Center",
+        title: "Home",
       });
 
       marker.value.addTo(map.value);
-      console.log(ev.latlng);
+      emit("onChangeCoords", ev.latlng);
     });
   }
 });
 </script>
 <template>
-  <div id="map" class="h-1/2 w-screen"></div>
+  <div id="register-map"></div>
 </template>
 
 <style>
