@@ -15,19 +15,28 @@ const formState = reactive({
   longitude: null,
 });
 
-const { data: profile, refresh } = await useAsyncData("profiles", async () => {
-  try {
-    const { data } = await client
-      .from("profiles")
-      .select("username, avatar_url, latitude, longitude")
-      .eq("id", user.value.id)
-      .single();
-    console.log("in get profile", data);
-    return data;
-  } catch (e) {
-    console.log(e);
+const { data: profile, refresh: refreshProfile } = await useAsyncData(
+  "profiles",
+  async () => {
+    try {
+      const { data: profile, error } = await client
+        .from("profiles")
+        .select("username, avatar_url, coordinates(*)")
+        .eq("id", user.value.id)
+        .single();
+      // const { data: coordinates } = await client
+      //   .from("coordinates")
+      //   .select("latitude, longitude")
+      //   .eq("id", user.value.id)
+      //   .single();
+      console.log("error", error);
+      console.log("in get profile", profile);
+      return profile;
+    } catch (e) {
+      console.log("errrorr", e);
+    }
   }
-});
+);
 
 const onChangeCoords = ({ lat, lng }) => {
   formState.latitude = lat;
@@ -58,17 +67,27 @@ const { validate, validateInfos } = useForm(formState, rulesRef);
 const onSubmit = () => {
   validate()
     .then(async () => {
-      const { error } = await client
+      const body = toRaw(formState);
+      const { error: profileError } = await client
         .from("profiles")
-        .update(toRaw(formState))
+        .update({
+          username: body.username,
+        })
         .eq("id", user.value.id);
-      if (!error) {
+      const { error: coordinatesError } = await client
+        .from("coordinates")
+        .upsert({
+          id: user.value.id,
+          latitude: body.latitude,
+          longitude: body.longitude,
+        });
+      console.log("profile update error", profileError);
+      console.log("coordinates insert error", coordinatesError);
+      if (!profileError && !coordinatesError) {
         return router.push({ name: "map" });
       }
     })
-    .catch((err) => {
-      console.log("error", err);
-    });
+    .catch((error) => console.log(error));
 };
 
 const handleChangeImage = async (info: UploadChangeParam) => {
@@ -88,7 +107,7 @@ const handleChangeImage = async (info: UploadChangeParam) => {
           .from("profiles")
           .update({ avatar_url: data.Key })
           .eq("id", user.value.id);
-        refresh();
+        refreshProfile();
       }
     } catch (e) {
       console.log(e);
