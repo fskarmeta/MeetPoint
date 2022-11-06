@@ -73,7 +73,7 @@ const test = () =>
   });
 </script>
 <template>
-  <Button @click="test">test</Button>
+  <!-- <Button @click="test">test</Button> -->
   <div id="map" class="h-full w-full"></div>
 </template>
 
