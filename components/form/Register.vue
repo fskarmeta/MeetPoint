@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { Form } from "ant-design-vue";
-import { nanoid } from "nanoid";
-import { UploadChangeParam } from "ant-design-vue/es";
 
 const user = useSupabaseUser();
 const client = useSupabaseClient();
-const config = useRuntimeConfig();
 const router = useRouter();
 const useForm = Form.useForm;
 
@@ -19,18 +16,11 @@ const { data: profile, refresh: refreshProfile } = await useAsyncData(
   "profiles",
   async () => {
     try {
-      const { data: profile, error } = await client
+      const { data: profile } = await client
         .from("profiles")
         .select("username, avatar_url, coordinates(*)")
         .eq("id", user.value.id)
         .single();
-      // const { data: coordinates } = await client
-      //   .from("coordinates")
-      //   .select("latitude, longitude")
-      //   .eq("id", user.value.id)
-      //   .single();
-      console.log("error", error);
-      console.log("in get profile", profile);
       return profile;
     } catch (e) {
       console.log("errrorr", e);
@@ -81,63 +71,23 @@ const onSubmit = () => {
           latitude: body.latitude,
           longitude: body.longitude,
         });
-      console.log("profile update error", profileError);
-      console.log("coordinates insert error", coordinatesError);
       if (!profileError && !coordinatesError) {
         return router.push({ name: "map" });
       }
     })
     .catch((error) => console.log(error));
 };
-
-const handleChangeImage = async (info: UploadChangeParam) => {
-  if (info.file.status === "done") {
-    try {
-      const avatarFile = info.file.originFileObj;
-      const { data, error } = await client.storage
-        .from("avatars")
-        .upload(`public/${nanoid()}.png`, avatarFile, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-      console.log(data, error);
-
-      if (data.Key) {
-        await client
-          .from("profiles")
-          .update({ avatar_url: data.Key })
-          .eq("id", user.value.id);
-        refreshProfile();
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-};
-
-const userProfileImage = computed(() => {
-  return profile.value.avatar_url.includes("https://")
-    ? profile.value.avatar_url
-    : config.AVATAR_STORAGE_URL + profile.value.avatar_url;
-});
 </script>
 <template>
   <div>
-    <pre>
-      {{ profile }}
-    </pre>
     <a-form :model="formState" name="registerForm" layout="vertical">
       <div class="flex place-items-center space-x-5">
         <a-form-item>
-          <a-upload
-            name="file"
-            @change="handleChangeImage"
-            :multiple="false"
-            :maxCount="1"
-            :showUploadList="false"
-          >
-            <a-avatar size="large" :src="userProfileImage" />
-          </a-upload>
+          <FormUpdateAvatar
+            :avatarUrl="profile.avatar_url"
+            :userId="user.id"
+            @on-avatar-update="refreshProfile"
+          />
         </a-form-item>
         <a-form-item label="Username" v-bind="validateInfos.username">
           <a-input v-model:value="formState.username" />
