@@ -4,17 +4,30 @@ import L, { marker } from "leaflet";
 import { createRandomColor } from "~~/utils/helpers";
 import { centerIcon } from "~~/utils/leaflet";
 
+interface State {
+  map: L.Map | null;
+  selectedFriendIds: number[];
+  friends: { name: string; lat: number; lng: number; id: number }[];
+  friendsMarkers: L.Marker[];
+  friendsLinesToCenter: L.Polyline[];
+  centerMarker: L.Marker | null;
+}
+
 export const useMapStore = definePiniaStore("mapStore", {
-  state: () => ({
-    map: <L.Map>null,
+  state: (): State => ({
+    map: null,
+    selectedFriendIds: [],
     friends: friends,
-    friendsMarkers: <L.Marker[]>[],
-    friendsLinesToCenter: <L.Polyline[]>[],
-    centerMaker: <L.Marker>null,
+    friendsMarkers: [],
+    friendsLinesToCenter: [],
+    centerMarker: null,
   }),
   actions: {
     paintFriends() {
-      const friends = this.friends;
+      this.removeElementsFromMap();
+      const friends = this.friends.filter((friend) =>
+        this.selectedFriendIds.includes(friend.id)
+      );
       const length = friends.length;
       const coordinatesSum = friends.reduce(
         (a, b) => ({ lat: a.lat + b.lat, lng: a.lng + b.lng }),
@@ -26,7 +39,7 @@ export const useMapStore = definePiniaStore("mapStore", {
       ];
 
       // add center marker
-      this.centerMaker = L.marker(
+      this.centerMarker = L.marker(
         { lat: averageCoordinates[0], lng: averageCoordinates[1] },
         {
           title: "Center",
@@ -34,7 +47,6 @@ export const useMapStore = definePiniaStore("mapStore", {
         }
       );
 
-    
       for (const { lat, lng, name } of friends) {
         const friendCoordinates: [number, number] = [lat, lng];
 
@@ -52,7 +64,6 @@ export const useMapStore = definePiniaStore("mapStore", {
         );
         this.friendsMarkers.push(marker);
 
-
         // friend line to center
         const color = createRandomColor();
         const line = L.polyline([friendCoordinates, averageCoordinates], {
@@ -63,13 +74,26 @@ export const useMapStore = definePiniaStore("mapStore", {
         this.friendsLinesToCenter.push(line);
 
         // paint
-        this.addElementsTopMap()
+        this.addElementsTopMap();
       }
     },
     addElementsTopMap() {
-      this.centerMaker.addTo(this.map);
-      this.friendsMarkers.forEach((marker) => marker.addTo(this.map));
-      this.friendsLinesToCenter.forEach((line) => line.addTo(this.map));
+      if (this.centerMarker) {
+        this.centerMarker.addTo(this.map as L.Map);
+        this.friendsMarkers.forEach((marker) =>
+          marker.addTo(this.map as L.Map)
+        );
+        this.friendsLinesToCenter.forEach((line) =>
+          line.addTo(this.map as L.Map)
+        );
+      }
+    },
+    removeElementsFromMap() {
+      if (this.centerMarker) {
+        this.centerMarker.remove();
+        this.friendsMarkers.forEach((marker) => marker.remove());
+        this.friendsLinesToCenter.forEach((line) => line.remove());
+      }
     },
   },
 });

@@ -54,6 +54,7 @@ declare module '@vue/runtime-core' {
     ArrowRightOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/ArrowRightOutlined.js')['default']
     ArrowsAltOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/ArrowsAltOutlined.js')['default']
     ArrowUpOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/ArrowUpOutlined.js')['default']
+    ASelect: typeof import('ant-design-vue/es')['Select']
     AudioFilled: typeof import('./node_modules/@ant-design/icons-vue/es/icons/AudioFilled.js')['default']
     AudioMutedOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/AudioMutedOutlined.js')['default']
     AudioOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/AudioOutlined.js')['default']
