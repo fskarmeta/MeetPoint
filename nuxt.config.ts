@@ -17,6 +17,9 @@ export default defineNuxtConfig({
       },
     ],
   ],
+  typescript: {
+    strict: true,
+  },
   css: [
     "virtual:windi-base.css",
     "virtual:windi-components.css",
