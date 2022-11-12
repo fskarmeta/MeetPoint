@@ -5,7 +5,18 @@ import { AntDesignVueResolver } from "unplugin-vue-components/resolvers";
 const isDev = process.env.NODE_ENV === "development";
 
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/supabase", "nuxt-windicss"],
+  modules: [
+    "@nuxtjs/supabase",
+    "nuxt-windicss",
+    [
+      "@pinia/nuxt",
+      {
+        autoImports: [
+          ["defineStore", "definePiniaStore"],
+        ],
+      },
+    ],
+  ],
   css: [
     "virtual:windi-base.css",
     "virtual:windi-components.css",

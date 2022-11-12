@@ -16,6 +16,7 @@
     "unplugin-vue-components": "^0.22.9"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.4.3",
     "ant-design-vue": "^3.2.13",
     "leaflet": "^1.9.2",
     "nanoid": "^4.0.0"
