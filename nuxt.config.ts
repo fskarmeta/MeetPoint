@@ -8,12 +8,11 @@ export default defineNuxtConfig({
   modules: [
     "@nuxtjs/supabase",
     "nuxt-windicss",
+    "@vueuse/nuxt",
     [
       "@pinia/nuxt",
       {
-        autoImports: [
-          ["defineStore", "definePiniaStore"],
-        ],
+        autoImports: [["defineStore", "definePiniaStore"]],
       },
     ],
   ],
