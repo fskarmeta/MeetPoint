@@ -4,6 +4,7 @@ import { useMapStore } from "~~/stores/useMapStore";
 import friends from "~~/utils/friends";
 import L from "leaflet";
 import { Ref } from "vue";
+import { Form } from "ant-design-vue";
 
 const store = useMapStore();
 
@@ -26,15 +27,12 @@ onMounted(async () => {
       store.map.on("click", function (env) {
         isFriendPopupOpen.value = false;
         console.log(env.latlng);
-        if (addFriendMarker.value && addFriendPopup.value) {
-          addFriendMarker.value.remove();
-          addFriendPopup.value.remove();
-          addFriendMarker.value = null;
-          addFriendPopup.value = null;
-        }
+        removeAddFriendMarker();
         addFriendPopup.value = L.popup({
-          maxWidth: 200,
-        }).setContent(addFriendRef);
+          minWidth: 240,
+        })
+          .setContent(addFriendRef)
+          .on("remove", removeAddFriendMarker);
         addFriendMarker.value = L.marker(env.latlng, {
           title: "add friend",
         }).bindPopup(addFriendPopup.value);
@@ -55,9 +53,57 @@ watch(
     }
   }
 );
+
+const useForm = Form.useForm;
+
+const formState = reactive({
+  username: "",
+  latitude: null,
+  longitude: null,
+});
+
+const rulesRef = reactive({
+  username: [
+    {
+      required: true,
+      message: "bra",
+    },
+  ],
+});
+
+const { validate, validateInfos, resetFields } = useForm(formState, rulesRef);
+
+const removeAddFriendMarker = () => {
+  if (addFriendMarker.value && addFriendPopup.value) {
+    addFriendMarker.value.remove();
+    addFriendPopup.value.remove();
+    addFriendMarker.value = null;
+    addFriendPopup.value = null;
+    resetFields();
+  }
+};
+
+const submitSomeone = () => {
+  validate().then(() => console.log("valid"));
+};
 </script>
 <template>
-  <div v-show="isFriendPopupOpen" ref="addFriendRef">lol this works omg xD</div>
+  <div v-show="isFriendPopupOpen" ref="addFriendRef">
+    <a-form :model="formState" name="addSomeoneForm" layout="vertical">
+      <a-form-item v-bind="validateInfos.username">
+        <div class="flex mt-2">
+          <a-input
+            placeholder="Add someone"
+            v-model:value="formState.username"
+          />
+          <a-button type="primary" @click="submitSomeone">
+            <template #icon><PlusOutlined /></template>
+          </a-button>
+        </div>
+      </a-form-item>
+    </a-form>
+    <!-- <a-button @click="removeAddFriendMarker">Close</a-button> -->
+  </div>
   <a-select
     v-model:value="store.selectedFriendIds"
     mode="multiple"

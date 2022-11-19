@@ -64,7 +64,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           const friendIcon = L.icon({
             className: "friend-icon",
             iconUrl:
-              "https://lh3.googleusercontent.com/a/ALm5wu2e6rbUQZqjYd1u_8F0b4BWfWNtfZ3Z-Bg5toaiOQ=s96-c",
+              `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
             iconSize: [50, 50],
           });
 

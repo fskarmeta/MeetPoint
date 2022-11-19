@@ -3,7 +3,7 @@ import L from "leaflet";
 import { Ref } from "vue";
 import useMap from "~~/composables/useMap";
 
-const map: Ref<L.Map> = ref();
+const map: Ref<L.Map | null> = ref(null);
 const marker = ref();
 
 const emit = defineEmits(["onChangeCoords"]);
@@ -16,7 +16,7 @@ onMounted(async () => {
       zoom: 2,
     });
     map.value.on("click", function (ev) {
-      if (marker.value) {
+      if (marker.value && map.value) {
         map.value.removeLayer(marker.value);
       }
       marker.value = L.marker(ev.latlng, {

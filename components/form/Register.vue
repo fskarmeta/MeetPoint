@@ -6,7 +6,11 @@ const client = useSupabaseClient();
 const router = useRouter();
 const useForm = Form.useForm;
 
-const formState = reactive({
+const formState = reactive<{
+  username: string;
+  latitude: number | null;
+  longitude: number | null;
+}>({
   username: "",
   latitude: null,
   longitude: null,
@@ -19,7 +23,7 @@ const { data: profile, refresh: refreshProfile } = await useAsyncData(
       const { data: profile } = await client
         .from("profiles")
         .select("username, avatar_url, coordinates(*)")
-        .eq("id", user.value.id)
+        .eq("id", user?.value?.id)
         .single();
       return profile;
     } catch (e) {
@@ -28,7 +32,7 @@ const { data: profile, refresh: refreshProfile } = await useAsyncData(
   }
 );
 
-const onChangeCoords = ({ lat, lng }) => {
+const onChangeCoords = ({ lat, lng }: { lat: number; lng: number }) => {
   formState.latitude = lat;
   formState.longitude = lng;
 };
@@ -63,11 +67,11 @@ const onSubmit = () => {
         .update({
           username: body.username,
         })
-        .eq("id", user.value.id);
+        .eq("id", user?.value?.id);
       const { error: coordinatesError } = await client
         .from("coordinates")
         .upsert({
-          id: user.value.id,
+          id: user?.value?.id,
           latitude: body.latitude,
           longitude: body.longitude,
         });
@@ -84,6 +88,7 @@ const onSubmit = () => {
       <div class="flex place-items-center space-x-5">
         <a-form-item>
           <FormUpdateAvatar
+            v-if="user?.id"
             :avatarUrl="profile.avatar_url"
             :userId="user.id"
             @on-avatar-update="refreshProfile"
