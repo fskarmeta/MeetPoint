@@ -6,6 +6,11 @@ import L from "leaflet";
 import { Ref } from "vue";
 import { Form } from "ant-design-vue";
 
+const user = useSupabaseUser();
+const client = useSupabaseClient();
+
+const { getUserProfile } = useUserProfile(client, user);
+
 const store = useMapStore();
 
 const addFriendMarker = ref<L.Marker | null>(null);
@@ -17,6 +22,8 @@ const addFriendRef = ref<HTMLElement>() as unknown as HTMLElement;
 
 onMounted(async () => {
   if (process.client) {
+    const data = await getUserProfile();
+    store.userProfile = data;
     await nextTick();
     store.map = useMap("map", {
       center: [-33.443, -70.637],

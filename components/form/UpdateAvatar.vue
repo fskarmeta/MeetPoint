@@ -25,7 +25,7 @@ const userProfileImage = computed(() => {
 });
 
 const handleChangeImage = async (info: UploadChangeParam) => {
-  if (info.file.status === "done") {
+  if (info.file.status === "done" && info.file.originFileObj) {
     try {
       const avatarFile = info.file.originFileObj;
       const { data, error } = await client.storage
@@ -36,7 +36,7 @@ const handleChangeImage = async (info: UploadChangeParam) => {
         });
       console.log(data, error);
 
-      if (data.Key) {
+      if (data?.Key) {
         await client
           .from("profiles")
           .update({ avatar_url: data.Key })

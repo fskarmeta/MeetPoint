@@ -5,6 +5,7 @@ import { createRandomColor } from "~~/utils/helpers";
 import { centerIcon } from "~~/utils/leaflet";
 
 interface State {
+  userProfile: any;
   map: L.Map;
   selectedFriendIds: number[];
   friends: { name: string; lat: number; lng: number; id: number }[];
@@ -16,6 +17,7 @@ interface State {
 
 export const useMapStore = definePiniaStore("mapStore", {
   state: (): State => ({
+    userProfile: {},
     map: null as unknown as L.Map,
     selectedFriendIds: [],
     friends: friends,
@@ -63,8 +65,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           // friend marker
           const friendIcon = L.icon({
             className: "friend-icon",
-            iconUrl:
-              `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
+            iconUrl: `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
             iconSize: [50, 50],
           });
 

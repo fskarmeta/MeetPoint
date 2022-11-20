@@ -5,7 +5,10 @@ const user = useSupabaseUser();
 const client = useSupabaseClient();
 const router = useRouter();
 const useForm = Form.useForm;
-
+const { getUserProfile, updateUsername, upsertCoordinates } = useUserProfile(
+  client,
+  user
+);
 const formState = reactive<{
   username: string;
   latitude: number | null;
@@ -18,18 +21,7 @@ const formState = reactive<{
 
 const { data: profile, refresh: refreshProfile } = await useAsyncData(
   "profiles",
-  async () => {
-    try {
-      const { data: profile } = await client
-        .from("profiles")
-        .select("username, avatar_url, coordinates(*)")
-        .eq("id", user?.value?.id)
-        .single();
-      return profile;
-    } catch (e) {
-      console.log("errrorr", e);
-    }
-  }
+  async () => await getUserProfile()
 );
 
 const onChangeCoords = ({ lat, lng }: { lat: number; lng: number }) => {
@@ -62,21 +54,15 @@ const onSubmit = () => {
   validate()
     .then(async () => {
       const body = toRaw(formState);
-      const { error: profileError } = await client
-        .from("profiles")
-        .update({
-          username: body.username,
-        })
-        .eq("id", user?.value?.id);
-      const { error: coordinatesError } = await client
-        .from("coordinates")
-        .upsert({
-          id: user?.value?.id,
-          latitude: body.latitude,
-          longitude: body.longitude,
-        });
-      if (!profileError && !coordinatesError) {
-        return router.push({ name: "map" });
+      if (body.username && body.latitude && body.longitude) {
+        const profileError = await updateUsername(body.username);
+        const coordinatesError = upsertCoordinates(
+          body.latitude,
+          body.longitude
+        );
+        if (!profileError && !coordinatesError) {
+          return router.push({ name: "map" });
+        }
       }
     })
     .catch((error) => console.log(error));
