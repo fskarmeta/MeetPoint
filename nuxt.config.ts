@@ -63,7 +63,9 @@ export default defineNuxtConfig({
   experimental: {
     reactivityTransform: true,
   },
-  publicRuntimeConfig: {
-    AVATAR_STORAGE_URL: process.env.SUPASE_AVATAR_STORAGE_URL,
+  runtimeConfig: {
+    public: {
+      AVATAR_STORAGE_URL: process.env.SUPASE_AVATAR_STORAGE_URL,
+    },
   },
 });
