@@ -7,8 +7,8 @@ import { centerIcon } from "~~/utils/leaflet";
 interface State {
   userProfile: any;
   map: L.Map;
-  selectedFriendIds: number[];
-  friends: { name: string; lat: number; lng: number; id: number }[];
+  selectedFriendIds: (number | string)[];
+  friends: { name: string; lat: number; lng: number; id: number | string }[];
   friendsMarkers: L.Marker[];
   friendsLinesToCenter: L.Polyline[];
   centerMarker: L.Marker | null;

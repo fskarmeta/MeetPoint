@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import useMap from "~~/composables/useMap";
 import { useMapStore } from "~~/stores/useMapStore";
-import friends from "~~/utils/friends";
 import L from "leaflet";
 import { Ref } from "vue";
 import { Form } from "ant-design-vue";
+import { nanoid } from "nanoid";
 
 const user = useSupabaseUser();
 const client = useSupabaseClient();
@@ -19,6 +19,13 @@ const isFriendPopupOpen = ref(false);
 
 const addFriendPopup: Ref<L.Popup | null> = ref(null);
 const addFriendRef = ref<HTMLElement>() as unknown as HTMLElement;
+const addFriendInputRef = ref<HTMLElement>();
+
+const addDummyFriendFormState = reactive({
+  name: "",
+  lat: 0,
+  lng: 0,
+});
 
 onMounted(async () => {
   if (process.client) {
@@ -45,7 +52,14 @@ onMounted(async () => {
         }).bindPopup(addFriendPopup.value);
         addFriendMarker.value.addTo(store.map as L.Map);
         addFriendMarker.value.openPopup();
+        addDummyFriendFormState.lng = env.latlng.lng;
+        addDummyFriendFormState.lat = env.latlng.lat;
         isFriendPopupOpen.value = true;
+        setTimeout(() => {
+          if (addFriendInputRef.value) {
+            addFriendInputRef.value.focus();
+          }
+        }, 200);
       });
     }
     store.paintFriends();
@@ -63,14 +77,8 @@ watch(
 
 const useForm = Form.useForm;
 
-const formState = reactive({
-  username: "",
-  latitude: null,
-  longitude: null,
-});
-
 const rulesRef = reactive({
-  username: [
+  name: [
     {
       required: true,
       message: "bra",
@@ -78,30 +86,47 @@ const rulesRef = reactive({
   ],
 });
 
-const { validate, validateInfos, resetFields } = useForm(formState, rulesRef);
+const { validate, validateInfos, resetFields } = useForm(
+  addDummyFriendFormState,
+  rulesRef
+);
 
 const removeAddFriendMarker = () => {
   if (addFriendMarker.value && addFriendPopup.value) {
-    addFriendMarker.value.remove();
-    addFriendPopup.value.remove();
-    addFriendMarker.value = null;
-    addFriendPopup.value = null;
+    try {
+      addFriendMarker.value.remove();
+      addFriendMarker.value = null;
+      addFriendPopup.value = null;
+    } catch (e) {
+      console.log(e);
+    }
     resetFields();
   }
 };
 
 const submitSomeone = () => {
-  validate().then(() => console.log("valid"));
+  validate().then(() => {
+    const newId = nanoid();
+    store.friends.push({ ...addDummyFriendFormState, id: newId });
+    store.selectedFriendIds = [...store.selectedFriendIds, newId];
+    removeAddFriendMarker();
+  });
 };
 </script>
 <template>
   <div v-show="isFriendPopupOpen" ref="addFriendRef">
-    <a-form :model="formState" name="addSomeoneForm" layout="vertical">
-      <a-form-item v-bind="validateInfos.username">
+    <a-form
+      :model="addDummyFriendFormState"
+      name="addSomeoneForm"
+      layout="vertical"
+    >
+      <a-form-item v-bind="validateInfos.name">
         <div class="flex mt-2">
           <a-input
+            ref="addFriendInputRef"
             placeholder="Add someone"
-            v-model:value="formState.username"
+            v-model:value="addDummyFriendFormState.name"
+            @keyup.enter="submitSomeone"
           />
           <a-button type="primary" @click="submitSomeone">
             <template #icon><PlusOutlined /></template>
@@ -111,18 +136,19 @@ const submitSomeone = () => {
     </a-form>
     <!-- <a-button @click="removeAddFriendMarker">Close</a-button> -->
   </div>
+
   <a-select
     v-model:value="store.selectedFriendIds"
     mode="multiple"
     style="width: 100%"
     placeholder="Please select"
-    :options="friends"
+    :options="store.friends"
     :field-names="{ label: 'name', value: 'id' }"
   ></a-select>
   <div id="map" class="h-full w-full relative">
-    <div class="absolute bg-red-200 text-3xl z-9999 right-0 mr-5 mt-5">
+    <!-- <div class="absolute bg-red-200 text-3xl z-9999 right-0 mr-5 mt-5">
       Add friend
-    </div>
+    </div> -->
   </div>
 </template>
 
