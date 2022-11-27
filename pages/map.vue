@@ -5,7 +5,7 @@ definePageMeta({
 });
 </script>
 <template>
-  <div class="w-screen h-screen">
+  <div class="w-screen h-full">
     <Map />
   </div>
 </template>

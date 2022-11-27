@@ -24,8 +24,14 @@ const visible = ref(false);
         <p class="m-0 p-0">Profile</p>
       </div>
     </nav>
-    <div class="mx-auto h-full flex justify-center">
+    <div class="mx-auto content-height flex justify-center">
       <slot />
     </div>
   </div>
 </template>
+
+<style scoped>
+.content-height {
+  height: calc(100vh - 74px);
+}
+</style>
