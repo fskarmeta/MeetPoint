@@ -5,9 +5,13 @@ import L from "leaflet";
 import { Ref } from "vue";
 import { Form } from "ant-design-vue";
 import { nanoid } from "nanoid";
+import { useStorage } from "@vueuse/core";
+import { Friends } from "../stores/useMapStore";
 
 const user = useSupabaseUser();
 const client = useSupabaseClient();
+
+const localStorage = useStorage("dummyFriends", [] as Friends);
 
 const { getUserProfile } = useUserProfile(client, user);
 
@@ -38,6 +42,9 @@ onMounted(async () => {
     });
 
     if (store.map) {
+      if (localStorage.value) {
+        store.friends = [...store.friends, ...localStorage.value];
+      }
       store.map.on("click", function (env) {
         isFriendPopupOpen.value = false;
         console.log(env.latlng);
@@ -69,8 +76,10 @@ onMounted(async () => {
 watch(
   () => store.selectedFriendIds,
   (newVal, oldVal) => {
-    if (newVal.length || oldVal.length === 1) {
+    if (true) {
       store.paintFriends();
+      const dummyFriends = store.friends.filter((f) => f.type === "local");
+      localStorage.value = dummyFriends;
     }
   }
 );
@@ -107,11 +116,17 @@ const removeAddFriendMarker = () => {
 const submitSomeone = () => {
   validate().then(() => {
     const newId = nanoid();
-    store.friends.push({ ...addDummyFriendFormState, id: newId });
+    store.friends.push({
+      ...addDummyFriendFormState,
+      id: newId,
+      type: "local",
+    });
     store.selectedFriendIds = [...store.selectedFriendIds, newId];
     removeAddFriendMarker();
   });
 };
+
+const clearFriends = () => (store.selectedFriendIds = []);
 </script>
 <template>
   <div v-show="isFriendPopupOpen" ref="addFriendRef">
@@ -143,6 +158,9 @@ const submitSomeone = () => {
     style="width: 100%"
     placeholder="Please select"
     :options="store.friends"
+    size="large"
+    :allow-clear="true"
+    @clear="clearFriends"
     :field-names="{ label: 'name', value: 'id' }"
   ></a-select>
   <div id="map" class="h-full w-full relative">

@@ -4,11 +4,18 @@ import L, { marker } from "leaflet";
 import { createRandomColor } from "~~/utils/helpers";
 import { centerIcon } from "~~/utils/leaflet";
 
+export type Friends = {
+  name: string;
+  lat: number;
+  lng: number;
+  id: number | string;
+  type?: "local";
+}[];
 interface State {
   userProfile: any;
   map: L.Map;
   selectedFriendIds: (number | string)[];
-  friends: { name: string; lat: number; lng: number; id: number | string }[];
+  friends: Friends;
   friendsMarkers: L.Marker[];
   friendsLinesToCenter: L.Polyline[];
   centerMarker: L.Marker | null;
@@ -29,13 +36,12 @@ export const useMapStore = definePiniaStore("mapStore", {
   actions: {
     paintFriends() {
       this.calculating = true;
-      console.log("start");
+
       try {
         const friends = this.friends.filter((friend) =>
           this.selectedFriendIds.includes(friend.id)
         );
         this.removeElementsFromMap();
-        console.log(friends);
         const length = friends.length;
         const coordinatesSum = friends.reduce(
           (a, b) => ({ lat: a.lat + b.lat, lng: a.lng + b.lng }),
@@ -46,8 +52,6 @@ export const useMapStore = definePiniaStore("mapStore", {
           coordinatesSum.lng / length,
         ];
 
-        console.log(coordinatesSum);
-
         // add center marker
         if (coordinatesSum.lat && coordinatesSum.lng) {
           this.centerMarker = L.marker(
@@ -55,6 +59,7 @@ export const useMapStore = definePiniaStore("mapStore", {
             {
               title: "Center",
               icon: centerIcon,
+              opacity: friends.length > 1 ? 1 : 0,
             }
           );
         }
@@ -69,9 +74,17 @@ export const useMapStore = definePiniaStore("mapStore", {
             iconSize: [50, 50],
           });
 
-          const popup = L.popup({ minWidth: 500 }).setContent(
-            `<div id="friend-${id}" class="w-full"></div>`
-          );
+          const div = document.createElement("div");
+          const button = document.createElement("button");
+          button.className =
+            "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full";
+          button.innerHTML = `delete ${name}`;
+
+          button.onclick = () => this.removeFriendFromPopup(id);
+
+          div.appendChild(button);
+
+          const popup = L.popup({ minWidth: 100 }).setContent(div);
           const marker = L.marker(
             { lat, lng },
             { title: name, icon: friendIcon }
@@ -79,26 +92,25 @@ export const useMapStore = definePiniaStore("mapStore", {
           this.friendsMarkers.push(marker);
 
           // friend line to center
-          const color = createRandomColor();
+          const color = "#000000"; //createRandomColor();
           const line = L.polyline([friendCoordinates, averageCoordinates], {
             color,
           });
           const tooltip = L.tooltip().setContent(name);
           line.bindTooltip(tooltip);
           this.friendsLinesToCenter.push(line);
-
-          // paint
-          this.addElementsTopMap();
         }
+        // if (friends.length > 1) {
+        //   this.map.flyTo(averageCoordinates, 14);
+        // }
+        this.addEelementsToMap();
       } catch (e) {
         console.log(e);
       }
-      console.log("end");
       this.calculating = false;
     },
-    addElementsTopMap() {
+    addEelementsToMap() {
       if (this.centerMarker) {
-        console.log("yep");
         this.centerMarker.addTo(this.map as L.Map);
         this.friendsMarkers.forEach((marker) =>
           marker.addTo(this.map as L.Map)
@@ -106,6 +118,19 @@ export const useMapStore = definePiniaStore("mapStore", {
         this.friendsLinesToCenter.forEach((line) =>
           line.addTo(this.map as L.Map)
         );
+
+        // calculate minimum zoom level using friends lat lang and center marker
+
+        const friends = this.friends.filter((friend) =>
+          this.selectedFriendIds.includes(friend.id)
+        );
+        if (friends.length > 1) {
+          const bounds = L.latLngBounds(
+            friends.map((friend) => [friend.lat, friend.lng])
+          );
+          bounds.extend(this.centerMarker.getLatLng());
+          this.map.fitBounds(bounds);
+        }
       }
     },
     removeElementsFromMap() {
@@ -116,6 +141,11 @@ export const useMapStore = definePiniaStore("mapStore", {
       this.friendsLinesToCenter.forEach((line) => line.remove());
       this.friendsMarkers = [];
       this.friendsLinesToCenter = [];
+    },
+    removeFriendFromPopup(id: string | number) {
+      this.selectedFriendIds = this.selectedFriendIds.filter(
+        (friend) => friend !== id
+      );
     },
   },
 });
