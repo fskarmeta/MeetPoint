@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Drawer as ADrawer } from "ant-design-vue";
+
 const visible = ref(false);
 </script>
 
@@ -11,13 +12,12 @@ const visible = ref(false);
       placement="left"
       :visible="visible"
       @close="visible = false"
-      class="opacity-80"
+      :body-Style="{ background: 'white' }"
+      :header-style="{ background: 'white', border: 'none' }"
     >
-      goli
+      <DrawerMain />
     </a-drawer>
-    <nav
-      class="h-10 bg-yellow-200 flex justify-between px-10 place-items-center"
-    >
+    <nav class="h-10 bg-cyan-800 flex justify-between px-10 place-items-center">
       <div @click="visible = true">Actions</div>
       <div class="flex space-x-10 place-items-center">
         <p class="m-0 p-0">Logout</p>
@@ -33,5 +33,12 @@ const visible = ref(false);
 <style scoped>
 .content-height {
   height: calc(100vh - 74px);
+}
+</style>
+
+<style>
+body,
+html {
+  color: #ccfbf1;
 }
 </style>
