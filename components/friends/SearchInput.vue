@@ -11,10 +11,17 @@ const filter = (value: string, option: any) => {
   console.log(value, option);
   return option?.username.toLowerCase().indexOf(value.toLowerCase()) >= 0;
 };
+
+// const sendInvite = async () => {
+//   const test = await useFetch("/api/invite-friend", {
+//     headers: useRequestHeaders(["cookie"]),
+//   });
+//   console.log(test);
+// };
 </script>
 
 <template>
-  <div>
+  <div class="flex">
     <a-select
       v-model:value="selectedId"
       show-search
@@ -27,5 +34,6 @@ const filter = (value: string, option: any) => {
       :field-names="{ label: 'username', value: 'value' }"
       :filter-option="filter"
     ></a-select>
+    <!-- <a-button @click="sendInvite">Send invi</a-button> -->
   </div>
 </template>
