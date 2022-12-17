@@ -3,6 +3,13 @@ import L from "leaflet";
 import { Ref } from "vue";
 import useMap from "~~/composables/useMap";
 
+const props = defineProps<{
+  initialCoordinates: {
+    latitude: number;
+    longitude: number;
+  };
+}>();
+
 const map: Ref<L.Map | null> = ref(null);
 const marker = ref();
 
@@ -15,6 +22,20 @@ onMounted(async () => {
       center: [0, 0],
       zoom: 2,
     });
+
+    if (
+      props.initialCoordinates.latitude &&
+      props.initialCoordinates.longitude
+    ) {
+      marker.value = L.marker(
+        [props.initialCoordinates.latitude, props.initialCoordinates.longitude],
+        {
+          title: "Home",
+        }
+      );
+      marker.value.addTo(map.value);
+    }
+
     map.value.on("click", function (ev) {
       if (marker.value && map.value) {
         map.value.removeLayer(marker.value);

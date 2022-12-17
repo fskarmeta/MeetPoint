@@ -56,10 +56,11 @@ const onSubmit = () => {
       const body = toRaw(formState);
       if (body.username && body.latitude && body.longitude) {
         const profileError = await updateUsername(body.username);
-        const coordinatesError = upsertCoordinates(
+        const coordinatesError = await upsertCoordinates(
           body.latitude,
           body.longitude
         );
+        console.log(profileError, coordinatesError);
         if (!profileError && !coordinatesError) {
           return router.push({ name: "map" });
         }
@@ -67,6 +68,15 @@ const onSubmit = () => {
     })
     .catch((error) => console.log(error));
 };
+
+onMounted(() => {
+  if (profile.value) {
+    console.log(profile);
+    formState.username = profile.value.username;
+    formState.latitude = profile.value.coordinates.latitude;
+    formState.longitude = profile.value.coordinates.longitude;
+  }
+});
 </script>
 <template>
   <div>
@@ -89,6 +99,7 @@ const onSubmit = () => {
         v-bind="validateInfos.latitude"
       >
         <RegisterMap
+          :initial-coordinates="profile.coordinates"
           @onChangeCoords="onChangeCoords"
           class="w-screen md:w-500px h-100"
         />
