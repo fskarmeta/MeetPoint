@@ -36,11 +36,8 @@ export const useMapStore = definePiniaStore("mapStore", {
   actions: {
     paintFriends() {
       this.calculating = true;
-
       try {
-        const friends = this.friends.filter((friend) =>
-          this.selectedFriendIds.includes(friend.id)
-        );
+        const friends = this.selectedFriends;
         this.removeElementsFromMap();
         const length = friends.length;
         const coordinatesSum = friends.reduce(
@@ -78,7 +75,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           const button = document.createElement("button");
           button.className =
             "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full";
-          button.innerHTML = `delete ${name}`;
+          button.innerHTML = `unselect ${name}`;
 
           button.onclick = () => this.removeFriendFromPopup(id);
 
@@ -110,20 +107,15 @@ export const useMapStore = definePiniaStore("mapStore", {
       this.calculating = false;
     },
     addEelementsToMap() {
-      if (this.centerMarker) {
+      const friends = this.selectedFriends;
+      this.friendsMarkers.forEach((marker) => marker.addTo(this.map as L.Map));
+
+      if (this.centerMarker && friends.length > 1) {
         this.centerMarker.addTo(this.map as L.Map);
-        this.friendsMarkers.forEach((marker) =>
-          marker.addTo(this.map as L.Map)
-        );
         this.friendsLinesToCenter.forEach((line) =>
           line.addTo(this.map as L.Map)
         );
-
         // calculate minimum zoom level using friends lat lang and center marker
-
-        const friends = this.friends.filter((friend) =>
-          this.selectedFriendIds.includes(friend.id)
-        );
         if (friends.length > 1) {
           const bounds = L.latLngBounds(
             friends.map((friend) => [friend.lat, friend.lng])
@@ -135,7 +127,9 @@ export const useMapStore = definePiniaStore("mapStore", {
     },
     removeElementsFromMap() {
       if (this.centerMarker) {
+        console.log("ís there");
         this.centerMarker.remove();
+        this.centerMarker = null;
       }
       this.friendsMarkers.forEach((marker) => marker.remove());
       this.friendsLinesToCenter.forEach((line) => line.remove());
@@ -147,5 +141,11 @@ export const useMapStore = definePiniaStore("mapStore", {
         (friend) => friend !== id
       );
     },
+  },
+  getters: {
+    selectedFriends: (state) =>
+      state.friends.filter((friend) =>
+        state.selectedFriendIds.includes(friend.id)
+      ),
   },
 });
