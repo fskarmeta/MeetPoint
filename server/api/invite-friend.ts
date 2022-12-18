@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const { friendId } = body;
     const { id: currentUserId } = user;
+
+    // check if friendship request was already made
     const { data: friendShip } = await client
       .from("friends")
       .select()
@@ -22,8 +24,7 @@ export default defineEventHandler(async (event) => {
       .single();
 
     if (friendShip) {
-      console.log(friendShip);
-      return { msg: "Friendship already exists" };
+      return { msg: "Friendship request was already made" };
     }
 
     const { error: userUpdateError } = await client.from("friends").insert({
@@ -38,9 +39,12 @@ export default defineEventHandler(async (event) => {
     });
 
     if (userUpdateError || friendUpdateError) {
-      return { ...userUpdateError, ...friendUpdateError };
+      return {
+        msg: "Something went wrong",
+        error: { ...userUpdateError, ...friendUpdateError },
+      };
     }
 
-    return { msg: "Friendship created" };
+    return { msg: "Invitation send" };
   }
 });
