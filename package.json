@@ -8,7 +8,7 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@nuxtjs/supabase": "^0.1.28",
+    "@nuxtjs/supabase": "^0.3.0",
     "@types/leaflet": "^1.8.0",
     "@vueuse/nuxt": "^9.5.0",
     "less": "^4.1.3",
