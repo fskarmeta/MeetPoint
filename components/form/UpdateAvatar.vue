@@ -34,12 +34,11 @@ const handleChangeImage = async (info: UploadChangeParam) => {
           cacheControl: "3600",
           upsert: true,
         });
-      console.log(data, error);
 
-      if (data?.Key) {
+      if (data?.path) {
         await client
           .from("profiles")
-          .update({ avatar_url: data.Key })
+          .update({ avatar_url: data.path })
           .eq("id", props.userId);
         emit("onAvatarUpdate");
       }
@@ -58,6 +57,7 @@ const handleChangeImage = async (info: UploadChangeParam) => {
     :maxCount="1"
     :showUploadList="false"
   >
+    <!-- <pre>{{ userProfileImage }}</pre> -->
     <a-avatar size="large" :src="userProfileImage" />
   </a-upload>
 </template>

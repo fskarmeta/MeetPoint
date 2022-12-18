@@ -5,7 +5,7 @@ export const useUserProfile = (
   const getUserProfile = async () => {
     const { data } = await client
       .from("profiles")
-      .select("username, avatar_url, coordinates(*)")
+      .select("username, avatar_url, coordinates(*), friends(*)")
       .eq("id", user?.value?.id)
       .single();
     return data;

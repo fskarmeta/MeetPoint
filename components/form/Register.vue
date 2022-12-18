@@ -60,7 +60,7 @@ const onSubmit = () => {
           body.latitude,
           body.longitude
         );
-        console.log(profileError, coordinatesError);
+
         if (!profileError && !coordinatesError) {
           return router.push({ name: "map" });
         }
@@ -70,8 +70,12 @@ const onSubmit = () => {
 };
 
 onMounted(() => {
-  if (profile.value) {
-    console.log(profile);
+  if (
+    profile.value &&
+    profile.value.username &&
+    profile.value.coordinates.latitude &&
+    profile.value.coordinates.longitude
+  ) {
     formState.username = profile.value.username;
     formState.latitude = profile.value.coordinates.latitude;
     formState.longitude = profile.value.coordinates.longitude;

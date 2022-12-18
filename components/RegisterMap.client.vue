@@ -7,7 +7,7 @@ const props = defineProps<{
   initialCoordinates: {
     latitude: number;
     longitude: number;
-  };
+  } | null;
 }>();
 
 const map: Ref<L.Map | null> = ref(null);
@@ -24,6 +24,7 @@ onMounted(async () => {
     });
 
     if (
+      props.initialCoordinates &&
       props.initialCoordinates.latitude &&
       props.initialCoordinates.longitude
     ) {
