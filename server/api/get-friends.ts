@@ -19,30 +19,33 @@ export default eventHandler(async (event) => {
     .single();
 
   if (friendsInvitations?.friends) {
+    const getFriendIdsByInvitationType = (
+      type: "accepted" | "pending" | "send"
+    ) =>
+      friendsInvitations.friends
+        .filter((friend) => friend.status === type)
+        .map((friend) => friend.friend_id);
+
     const acceptedFriends = await client
       .from("profiles")
       .select("id, username, avatar_url")
-      .in(
-        "id",
-        friendsInvitations.friends
-          .filter((friend) => friend.status === "accepted")
-          .map((friend) => friend.friend_id)
-      );
+      .in("id", getFriendIdsByInvitationType("accepted"));
 
-    const pendingFriends = await client
+    const invitatedFriends = await client
       .from("profiles")
       .select("id, username, avatar_url")
-      .in(
-        "id",
-        friendsInvitations.friends
-          .filter((friend) => friend.status === "pending")
-          .map((friend) => friend.friend_id)
-      );
+      .in("id", getFriendIdsByInvitationType("send"));
+
+    const pendingInvitations = await client
+      .from("profiles")
+      .select("id, username, avatar_url")
+      .in("id", getFriendIdsByInvitationType("pending"));
 
     return {
       friends: acceptedFriends.data || [],
-      pending: pendingFriends.data || [],
+      invited: invitatedFriends.data || [],
+      pending: pendingInvitations.data || [],
     };
   }
-  return { friends: [], pending: [] };
+  return { friends: [], invited: [], pending: [] };
 });

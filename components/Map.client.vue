@@ -18,10 +18,10 @@ const { getUserProfile } = useUserProfile(client, user);
 const store = useMapStore();
 
 const addFriendMarker = ref<L.Marker | null>(null);
+const addFriendPopup: Ref<L.Popup | null> = ref(null);
 
 const isFriendPopupOpen = ref(false);
 
-const addFriendPopup: Ref<L.Popup | null> = ref(null);
 const addFriendRef = ref<HTMLElement>() as unknown as HTMLElement;
 const addFriendInputRef = ref<HTMLElement>();
 
@@ -47,7 +47,6 @@ onMounted(async () => {
       }
       store.map.on("click", function (env) {
         isFriendPopupOpen.value = false;
-        console.log(env.latlng);
         removeAddFriendMarker();
         addFriendPopup.value = L.popup({
           minWidth: 240,
@@ -128,6 +127,7 @@ const submitSomeone = () => {
 
 const clearFriends = () => (store.selectedFriendIds = []);
 </script>
+
 <template>
   <div v-show="isFriendPopupOpen" ref="addFriendRef">
     <a-form

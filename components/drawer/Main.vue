@@ -5,7 +5,11 @@ const activeKey = ref("1");
 
 <template>
   <div style="color: white">
-    <a-tabs v-model:activeKey="activeKey" size="large">
+    <a-tabs
+      v-model:activeKey="activeKey"
+      size="large"
+      :destroy-inactive-tab-pane="true"
+    >
       <a-tab-pane key="1" tab="Friends">
         <p>Invite Friends</p>
         <FriendsSearchInput />

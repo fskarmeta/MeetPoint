@@ -127,7 +127,6 @@ export const useMapStore = definePiniaStore("mapStore", {
     },
     removeElementsFromMap() {
       if (this.centerMarker) {
-        console.log("ís there");
         this.centerMarker.remove();
         this.centerMarker = null;
       }

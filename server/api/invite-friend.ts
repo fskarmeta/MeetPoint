@@ -4,11 +4,12 @@ import {
 } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-  const client = serverSupabaseServiceRole(event);
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw new Error("Not authorized");
   }
+
+  const client = serverSupabaseServiceRole(event);
 
   if (event.node.req.method === "POST") {
     const body = await readBody(event);
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const { error: userUpdateError } = await client.from("friends").insert({
       user_id: currentUserId,
       friend_id: friendId,
-      status: "pending",
+      status: "send",
     });
     const { error: friendUpdateError } = await client.from("friends").insert({
       user_id: friendId,

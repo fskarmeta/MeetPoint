@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const selectedId = ref("");
 const data = ref([]);
+const msg = ref("");
 
 const filter = (value: string, option: any) => {
   console.log(value, option);
@@ -8,37 +9,45 @@ const filter = (value: string, option: any) => {
 };
 
 const sendInvite = async () => {
-  const test = await useFetch("/api/invite-friend", {
-    headers: useRequestHeaders(["cookie"]) as unknown as string,
+  const { data } = await useFetch("/api/invite-friend", {
     method: "POST",
     body: {
       friendId: selectedId.value,
     },
   });
-  console.log(test);
+
+  if (data.value.msg) {
+    msg.value = data.value.msg;
+  }
 };
 
 onMounted(async () => {
   const { data: friends } = await useFetch("/api/search-profile");
-  console.log(friends.value.data);
   data.value = friends.value.data;
+});
+
+watch(selectedId, (val) => {
+  msg.value = "";
 });
 </script>
 
 <template>
-  <div class="flex">
-    <a-select
-      v-model:value="selectedId"
-      show-search
-      placeholder="input search text"
-      style="width: 200px"
-      :default-active-first-option="false"
-      :show-arrow="false"
-      :not-found-content="null"
-      :options="data"
-      :field-names="{ label: 'username', value: 'id' }"
-      :filter-option="filter"
-    ></a-select>
-    <a-button @click="sendInvite">Send invi</a-button>
+  <div>
+    <div class="flex">
+      <a-select
+        v-model:value="selectedId"
+        show-search
+        placeholder="input search text"
+        style="width: 200px"
+        :default-active-first-option="false"
+        :show-arrow="false"
+        :not-found-content="null"
+        :options="data"
+        :field-names="{ label: 'username', value: 'id' }"
+        :filter-option="filter"
+      ></a-select>
+      <a-button @click="sendInvite">Send invi</a-button>
+    </div>
+    <p v-if="msg" class="text-green-500 mt-1">{{ msg }}</p>
   </div>
 </template>
