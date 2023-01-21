@@ -11,7 +11,6 @@ const activeKey = ref("1");
       :destroy-inactive-tab-pane="true"
     >
       <a-tab-pane key="1" tab="Friends">
-        <p>Invite Friends</p>
         <FriendsSearchInput />
         <FriendsFriendsList />
       </a-tab-pane>

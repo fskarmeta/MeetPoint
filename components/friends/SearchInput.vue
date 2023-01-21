@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const config = useRuntimeConfig();
+
 const selectedId = ref("");
 const data = ref([]);
 const msg = ref("");
@@ -29,23 +31,35 @@ onMounted(async () => {
 watch(selectedId, (val) => {
   msg.value = "";
 });
+
+const userProfileImage = (avatarUrl: string) => {
+  return avatarUrl.includes("https://")
+    ? avatarUrl
+    : config.AVATAR_STORAGE_URL + avatarUrl;
+};
 </script>
 
 <template>
   <div>
+    <p>Invite Users</p>
     <div class="flex">
       <a-select
         v-model:value="selectedId"
         show-search
         placeholder="input search text"
-        style="width: 200px"
+        style="width: 100%"
         :default-active-first-option="false"
         :show-arrow="false"
         :not-found-content="null"
         :options="data"
         :field-names="{ label: 'username', value: 'id' }"
         :filter-option="filter"
-      ></a-select>
+      >
+        <template #option="{ username, avatar_url }">
+          <a-avatar :src="userProfileImage(avatar_url)" />
+          <span class="ml-5">{{ username }}</span>
+        </template>
+      </a-select>
       <a-button @click="sendInvite">Send invi</a-button>
     </div>
     <p v-if="msg" class="text-green-500 mt-1">{{ msg }}</p>
