@@ -26,7 +26,7 @@ const addFriendRef = ref<HTMLElement>() as unknown as HTMLElement;
 const addFriendInputRef = ref<HTMLElement>();
 
 const addDummyFriendFormState = reactive({
-  name: "",
+  username: "",
   lat: 0,
   lng: 0,
 });
@@ -86,7 +86,7 @@ watch(
 const useForm = Form.useForm;
 
 const rulesRef = reactive({
-  name: [
+  username: [
     {
       required: true,
       message: "bra",
@@ -140,7 +140,7 @@ const clearFriends = () => (store.selectedFriendIds = []);
           <a-input
             ref="addFriendInputRef"
             placeholder="Add someone"
-            v-model:value="addDummyFriendFormState.name"
+            v-model:value="addDummyFriendFormState.username"
             @keyup.enter="submitSomeone"
           />
           <a-button type="primary" @click="submitSomeone">
@@ -161,8 +161,17 @@ const clearFriends = () => (store.selectedFriendIds = []);
     size="large"
     :allow-clear="true"
     @clear="clearFriends"
-    :field-names="{ label: 'name', value: 'id' }"
-  ></a-select>
+    :field-names="{ label: 'username', value: 'id' }"
+  >
+    <template #option="{ username, type }">
+      <div class="flex w-full justify-between">
+        <p>
+          {{ username }} {{ type && type === "local" ? "(added by you)" : "" }}
+        </p>
+        <p class="mr-5" @click.stop="() => null">Erase</p>
+      </div>
+    </template>
+  </a-select>
   <div id="map" class="h-full w-full relative">
     <!-- <div class="absolute bg-red-200 text-3xl z-9999 right-0 mr-5 mt-5">
       Add friend

@@ -5,7 +5,7 @@ import { createRandomColor } from "~~/utils/helpers";
 import { centerIcon } from "~~/utils/leaflet";
 
 export type Friends = {
-  name: string;
+  username: string;
   lat: number;
   lng: number;
   id: number | string;
@@ -61,7 +61,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           );
         }
 
-        for (const { lat, lng, name, id } of friends) {
+        for (const { lat, lng, username, id } of friends) {
           const friendCoordinates: [number, number] = [lat, lng];
 
           // friend marker
@@ -75,7 +75,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           const button = document.createElement("button");
           button.className =
             "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full";
-          button.innerHTML = `unselect ${name}`;
+          button.innerHTML = `unselect ${username}`;
 
           button.onclick = () => this.removeFriendFromPopup(id);
 
@@ -84,7 +84,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           const popup = L.popup({ minWidth: 100 }).setContent(div);
           const marker = L.marker(
             { lat, lng },
-            { title: name, icon: friendIcon }
+            { title: username, icon: friendIcon }
           ).bindPopup(popup);
           this.friendsMarkers.push(marker);
 
@@ -93,7 +93,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           const line = L.polyline([friendCoordinates, averageCoordinates], {
             color,
           });
-          const tooltip = L.tooltip().setContent(name);
+          const tooltip = L.tooltip().setContent(username);
           line.bindTooltip(tooltip);
           this.friendsLinesToCenter.push(line);
         }

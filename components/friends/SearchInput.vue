@@ -18,14 +18,14 @@ const sendInvite = async () => {
     },
   });
 
-  if (data.value.msg) {
+  if (data?.value?.msg) {
     msg.value = data.value.msg;
   }
 };
 
 onMounted(async () => {
   const { data: friends } = await useFetch("/api/search-profile");
-  data.value = friends.value.data;
+  data.value = friends?.value?.data;
 });
 
 watch(selectedId, (val) => {
