@@ -1,8 +1,9 @@
-export const useUserProfile = (
-  client: ReturnType<typeof useSupabaseClient>,
-  user: ReturnType<typeof useSupabaseUser>
-) => {
+import { Database } from "~~/types/supabase";
+
+export const useUserProfile = () => {
   const getUserProfile = async () => {
+    const client = useSupabaseClient<Database>();
+    const user = useSupabaseUser();
     const { data } = await client
       .from("profiles")
       .select("username, avatar_url, coordinates(*), friends(*)")
@@ -12,6 +13,8 @@ export const useUserProfile = (
   };
 
   const updateUsername = async (username: string) => {
+    const client = useSupabaseClient<Database>();
+    const user = useSupabaseUser();
     const { error } = await client
       .from("profiles")
       .update({
@@ -22,6 +25,8 @@ export const useUserProfile = (
   };
 
   const upsertCoordinates = async (latitude: number, longitude: number) => {
+    const client = useSupabaseClient<Database>();
+    const user = useSupabaseUser();
     const { error } = await client.from("coordinates").upsert({
       id: user?.value?.id,
       latitude,

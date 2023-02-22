@@ -2,13 +2,9 @@
 import { Form } from "ant-design-vue";
 
 const user = useSupabaseUser();
-const client = useSupabaseClient();
 const router = useRouter();
 const useForm = Form.useForm;
-const { getUserProfile, updateUsername, upsertCoordinates } = useUserProfile(
-  client,
-  user
-);
+const { getUserProfile, updateUsername, upsertCoordinates } = useUserProfile();
 const formState = reactive<{
   username: string;
   latitude: number | null;
@@ -70,15 +66,17 @@ const onSubmit = () => {
 };
 
 onMounted(() => {
-  if (
-    profile.value &&
-    profile.value.username &&
-    profile.value.coordinates.latitude &&
-    profile.value.coordinates.longitude
-  ) {
-    formState.username = profile.value.username;
-    formState.latitude = profile.value.coordinates.latitude;
-    formState.longitude = profile.value.coordinates.longitude;
+  const coordinates = profile.value?.coordinates;
+
+  if (coordinates && !Array.isArray(coordinates)) {
+    const latitude = coordinates.latitude;
+    const longitude = coordinates.longitude;
+
+    if (profile.value && profile.value.username && latitude && longitude) {
+      formState.username = profile.value.username;
+      formState.latitude = latitude;
+      formState.longitude = longitude;
+    }
   }
 });
 </script>
@@ -89,7 +87,7 @@ onMounted(() => {
         <a-form-item>
           <FormUpdateAvatar
             v-if="user?.id"
-            :avatarUrl="profile.avatar_url"
+            :avatarUrl="profile?.avatar_url || ''"
             :userId="user.id"
             @on-avatar-update="refreshProfile"
           />

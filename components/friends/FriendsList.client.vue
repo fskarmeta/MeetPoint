@@ -1,22 +1,9 @@
 <script lang="ts" setup>
-const friends = ref([]);
-const invitedFriends = ref([]);
-const pendingFriends = ref([]);
-
-const config = useRuntimeConfig();
-
-const getFriends = async () =>
-  await useFetch("/api/get-friends").then((res) => {
-    const friendsData = res.data;
-    console.log(friendsData);
-    friends.value = friendsData.value?.friends;
-    invitedFriends.value = friendsData.value?.invited;
-    pendingFriends.value = friendsData.value?.pending;
-    return res;
-  });
+import { useUserStore } from "~~/stores/useUserStore";
+const userStore = useUserStore();
 
 onMounted(async () => {
-  getFriends();
+  userStore.getFriends();
 });
 
 const deleteFriend = async (friendId: string) => {
@@ -24,7 +11,7 @@ const deleteFriend = async (friendId: string) => {
     method: "DELETE",
     body: JSON.stringify({ friendId: friendId }),
   });
-  await getFriends();
+  userStore.getFriends();
 };
 
 const acceptFriend = async (friendId: string) => {
@@ -32,7 +19,7 @@ const acceptFriend = async (friendId: string) => {
     method: "POST",
     body: JSON.stringify({ friendId: friendId }),
   });
-  await getFriends();
+  userStore.getFriends();
 };
 </script>
 
@@ -40,20 +27,20 @@ const acceptFriend = async (friendId: string) => {
   <div class="mt-5">
     <FriendsSingleList
       v-slot="slotProps"
-      :list="invitedFriends"
+      :list="userStore.invited"
       title="Sended Invitations"
     >
       <p class="text-red-500" @click="deleteFriend(slotProps.id)">Cancel</p>
     </FriendsSingleList>
     <FriendsSingleList
       v-slot="slotProps"
-      :list="pendingFriends"
+      :list="userStore.pending"
       title="Pending invitation"
     >
       <p class="text-green-500" @click="acceptFriend(slotProps.id)">Accept</p>
       <p class="text-red-500" @click="deleteFriend(slotProps.id)">Cancel</p>
     </FriendsSingleList>
-    <FriendsSingleList v-slot="slotProps" :list="friends" title="Friends">
+    <FriendsSingleList v-slot="slotProps" :list="userStore.friends" title="Friends">
       <p class="text-red-500" @click="deleteFriend(slotProps.id)">Delete</p>
     </FriendsSingleList>
   </div>

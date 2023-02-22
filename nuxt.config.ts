@@ -68,4 +68,7 @@ export default defineNuxtConfig({
       AVATAR_STORAGE_URL: process.env.SUPASE_AVATAR_STORAGE_URL,
     },
   },
+  routeRules: {
+    '/map/**': { ssr: false },
+  }
 });

@@ -15,6 +15,7 @@ interface State {
   userProfile: any;
   map: L.Map;
   selectedFriendIds: (number | string)[];
+  friendsAlt: any;
   friends: Friends;
   friendsMarkers: L.Marker[];
   friendsLinesToCenter: L.Polyline[];
@@ -27,6 +28,7 @@ export const useMapStore = definePiniaStore("mapStore", {
     userProfile: {},
     map: null as unknown as L.Map,
     selectedFriendIds: [],
+    friendsAlt: [],
     friends: friends,
     friendsMarkers: [],
     friendsLinesToCenter: [],
@@ -97,9 +99,6 @@ export const useMapStore = definePiniaStore("mapStore", {
           line.bindTooltip(tooltip);
           this.friendsLinesToCenter.push(line);
         }
-        // if (friends.length > 1) {
-        //   this.map.flyTo(averageCoordinates, 14);
-        // }
         this.addEelementsToMap();
       } catch (e) {
         console.log(e);

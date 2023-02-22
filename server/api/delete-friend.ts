@@ -2,13 +2,14 @@ import {
   serverSupabaseServiceRole,
   serverSupabaseUser,
 } from "#supabase/server";
+import { Database } from "~~/types/supabase";
 
 export default eventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw new Error("Not authorized");
   }
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
 
   if (event.node.req.method === "DELETE") {
     const body = await readBody(event);

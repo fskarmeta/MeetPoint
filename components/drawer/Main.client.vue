@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import FriendsFriendsList from "../friends/FriendsList.vue";
+import FriendsListClient from "../friends/FriendsList.client.vue";
+import SearchInputClient from "../friends/SearchInput.client.vue";
+
 const activeKey = ref("1");
 </script>
 
@@ -11,8 +13,8 @@ const activeKey = ref("1");
       :destroy-inactive-tab-pane="true"
     >
       <a-tab-pane key="1" tab="Friends">
-        <FriendsSearchInput />
-        <FriendsFriendsList />
+        <SearchInputClient />
+        <FriendsListClient />
       </a-tab-pane>
       <a-tab-pane key="2" tab="Update Profile">
         <FormRegister />

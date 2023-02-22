@@ -2,13 +2,14 @@ import {
   serverSupabaseServiceRole,
   serverSupabaseUser,
 } from "#supabase/server";
+import { Database } from "~~/types/supabase";
 
 export default eventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw new Error("Not authorized");
   }
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
   const { id: currentUserId } = user;
 
   // get all current friends independant of status accepted or pending
@@ -18,17 +19,20 @@ export default eventHandler(async (event) => {
     .eq("id", currentUserId)
     .single();
 
-  if (friendsInvitations?.friends) {
+  const friends = friendsInvitations?.friends;
+
+  if (friends && Array.isArray(friends)) {
     const getFriendIdsByInvitationType = (
       type: "accepted" | "pending" | "send"
     ) =>
-      friendsInvitations.friends
+      friends
         .filter((friend) => friend.status === type)
         .map((friend) => friend.friend_id);
 
+    // add the coordinates to the accepted friends
     const acceptedFriends = await client
       .from("profiles")
-      .select("id, username, avatar_url")
+      .select("id, username, avatar_url, coordinates(*)")
       .in("id", getFriendIdsByInvitationType("accepted"));
 
     const invitatedFriends = await client
@@ -41,11 +45,12 @@ export default eventHandler(async (event) => {
       .select("id, username, avatar_url")
       .in("id", getFriendIdsByInvitationType("pending"));
 
-    return {
+    const body = {
       friends: acceptedFriends.data || [],
       invited: invitatedFriends.data || [],
       pending: pendingInvitations.data || [],
     };
+    return body;
   }
   return { friends: [], invited: [], pending: [] };
 });

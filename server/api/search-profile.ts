@@ -2,13 +2,14 @@ import {
   serverSupabaseServiceRole,
   serverSupabaseUser,
 } from "#supabase/server";
+import { Database } from "~~/types/supabase";
 
 export default eventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw new Error("Not authorized");
   }
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
   const { id: currentUserId } = user;
 
   // get all current friends independant of status accepted or pending
@@ -20,10 +21,13 @@ export default eventHandler(async (event) => {
 
   // store all ids we want to filter out from the search results
   const profileIdsToFilterOut = [currentUserId];
+  const friends = friendsData?.friends;
 
-  if (friendsData && friendsData.friends) {
-    friendsData.friends.forEach((friend) => {
-      profileIdsToFilterOut.push(friend.friend_id);
+  if (friends && Array.isArray(friends)) {
+    friends.forEach((user) => {
+      if (user.friend_id) {
+        profileIdsToFilterOut.push(user.friend_id);
+      }
     });
   }
 

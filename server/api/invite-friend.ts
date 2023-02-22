@@ -2,6 +2,7 @@ import {
   serverSupabaseServiceRole,
   serverSupabaseUser,
 } from "#supabase/server";
+import { Database } from "~~/types/supabase";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
@@ -9,7 +10,7 @@ export default defineEventHandler(async (event) => {
     throw new Error("Not authorized");
   }
 
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
 
   if (event.node.req.method === "POST") {
     const body = await readBody(event);

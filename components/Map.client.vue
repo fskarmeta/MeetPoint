@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useMap from "~~/composables/useMap";
 import { useMapStore } from "~~/stores/useMapStore";
+import { useUserStore } from "~~/stores/useUserStore";
 import L from "leaflet";
 import { Ref } from "vue";
 import { Form } from "ant-design-vue";
@@ -8,14 +9,12 @@ import { nanoid } from "nanoid";
 import { useStorage } from "@vueuse/core";
 import { Friends } from "../stores/useMapStore";
 
-const user = useSupabaseUser();
-const client = useSupabaseClient();
-
 const localStorage = useStorage("dummyFriends", [] as Friends);
 
-const { getUserProfile } = useUserProfile(client, user);
+const { getUserProfile } = useUserProfile();
 
-const store = useMapStore();
+const mapStore = useMapStore();
+const userStore = useUserStore();
 
 const addFriendMarker = ref<L.Marker | null>(null);
 const addFriendPopup: Ref<L.Popup | null> = ref(null);
@@ -33,19 +32,23 @@ const addDummyFriendFormState = reactive({
 
 onMounted(async () => {
   if (process.client) {
+    mapStore.calculating = true;
     const data = await getUserProfile();
-    store.userProfile = data;
-    await nextTick();
-    store.map = useMap("map", {
+    mapStore.userProfile = data;
+    await userStore.getFriends(true);
+    // await nextTick();
+    mapStore.map = useMap("map", {
       center: [-33.443, -70.637],
       zoom: 13,
     });
 
-    if (store.map) {
+    if (mapStore.map) {
       if (localStorage.value) {
-        store.friends = [...store.friends, ...localStorage.value];
+        console.log("friends at this time", mapStore.friends);
+        mapStore.friends = [...mapStore.friends, ...localStorage.value];
+        console.log("friends now", mapStore.friends);
       }
-      store.map.on("click", function (env) {
+      mapStore.map.on("click", function (env) {
         isFriendPopupOpen.value = false;
         removeAddFriendMarker();
         addFriendPopup.value = L.popup({
@@ -56,7 +59,7 @@ onMounted(async () => {
         addFriendMarker.value = L.marker(env.latlng, {
           title: "add friend",
         }).bindPopup(addFriendPopup.value);
-        addFriendMarker.value.addTo(store.map as L.Map);
+        addFriendMarker.value.addTo(mapStore.map as L.Map);
         addFriendMarker.value.openPopup();
         addDummyFriendFormState.lng = env.latlng.lng;
         addDummyFriendFormState.lat = env.latlng.lat;
@@ -68,18 +71,17 @@ onMounted(async () => {
         }, 200);
       });
     }
-    store.paintFriends();
+    mapStore.paintFriends();
   }
 });
 
 watch(
-  () => store.selectedFriendIds,
-  (newVal, oldVal) => {
-    if (true) {
-      store.paintFriends();
-      const dummyFriends = store.friends.filter((f) => f.type === "local");
-      localStorage.value = dummyFriends;
-    }
+  () => mapStore.selectedFriendIds,
+  () => {
+    console.log("watcher called");
+    mapStore.paintFriends();
+    const dummyFriends = mapStore.friends.filter((f) => f.type === "local");
+    localStorage.value = dummyFriends;
   }
 );
 
@@ -115,17 +117,25 @@ const removeAddFriendMarker = () => {
 const submitSomeone = () => {
   validate().then(() => {
     const newId = nanoid();
-    store.friends.push({
+    mapStore.friends.push({
       ...addDummyFriendFormState,
       id: newId,
       type: "local",
     });
-    store.selectedFriendIds = [...store.selectedFriendIds, newId];
+    mapStore.selectedFriendIds = [...mapStore.selectedFriendIds, newId];
     removeAddFriendMarker();
   });
 };
 
-const clearFriends = () => (store.selectedFriendIds = []);
+const clearFriends = () => (mapStore.selectedFriendIds = []);
+
+const onDeleteLocalFriend = (id: string) => {
+  mapStore.friends = mapStore.friends.filter((f) => f.id !== id);
+  mapStore.selectedFriendIds = mapStore.selectedFriendIds.filter(
+    (f) => f !== id
+  );
+  localStorage.value = mapStore.friends.filter((f) => f.type === "local");
+};
 </script>
 
 <template>
@@ -153,25 +163,47 @@ const clearFriends = () => (store.selectedFriendIds = []);
   </div>
 
   <a-select
-    v-model:value="store.selectedFriendIds"
+    v-model:value="mapStore.selectedFriendIds"
     mode="multiple"
     style="width: 100%"
     placeholder="Please select"
-    :options="store.friends"
+    :options="mapStore.friends"
     size="large"
     :allow-clear="true"
     @clear="clearFriends"
+    @click="removeAddFriendMarker"
     :field-names="{ label: 'username', value: 'id' }"
   >
-    <template #option="{ username, type }">
+    <template #option="{ username, type, id }">
       <div class="flex w-full justify-between">
         <p>
           {{ username }} {{ type && type === "local" ? "(added by you)" : "" }}
         </p>
-        <p class="mr-5" @click.stop="() => null">Erase</p>
+        <p
+          v-if="type && type === 'local'"
+          class="mr-5"
+          @click.stop="onDeleteLocalFriend(id)"
+        >
+          <DeleteOutlined
+            :style="{
+              fontSize: '16px',
+              color: 'red',
+            }"
+          />
+        </p>
       </div>
     </template>
+    <template #menuItemSelectedIcon> </template>
   </a-select>
+
+  <div
+    v-if="mapStore.calculating"
+    class="fixed z-9999 top-0 left-0 w-full h-full bg-gray-700 bg-opacity-50 flex items-center justify-center"
+  >
+    <div class="spinner-border text-white h-16 w-16" role="status">
+      <span>Loading...</span>
+    </div>
+  </div>
   <div id="map" class="h-full w-full relative">
     <!-- <div class="absolute bg-red-200 text-3xl z-9999 right-0 mr-5 mt-5">
       Add friend

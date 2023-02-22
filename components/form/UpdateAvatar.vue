@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { nanoid } from "nanoid";
 import { UploadChangeParam } from "ant-design-vue/es";
+import { Database } from "~~/types/supabase";
 
-const client = useSupabaseClient();
+const client = useSupabaseClient<Database>();
 const config = useRuntimeConfig();
 
 const props = defineProps({

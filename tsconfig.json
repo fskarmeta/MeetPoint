@@ -2,7 +2,7 @@
   // https://v3.nuxtjs.org/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "types": ["nuxt-windicss", "leaflet"]
+    "types": ["nuxt-windicss", "leaflet", "@pinia/nuxt"]
   },
   "strict": true
 }
