@@ -4,12 +4,15 @@ import L, { marker } from "leaflet";
 import { createRandomColor } from "~~/utils/helpers";
 import { centerIcon } from "~~/utils/leaflet";
 
+const config = useRuntimeConfig();
+
 export type Friends = {
   username: string;
   lat: number;
   lng: number;
   id: number | string;
   type?: "local";
+  icon?: string;
 }[];
 interface State {
   userProfile: any;
@@ -38,6 +41,7 @@ export const useMapStore = definePiniaStore("mapStore", {
   actions: {
     paintFriends() {
       this.calculating = true;
+      console.log("url", config.AVATAR_STORAGE_URL);
       try {
         const friends = this.selectedFriends;
         this.removeElementsFromMap();
@@ -63,13 +67,21 @@ export const useMapStore = definePiniaStore("mapStore", {
           );
         }
 
-        for (const { lat, lng, username, id } of friends) {
+        for (const { lat, lng, username, id, icon = "" } of friends) {
           const friendCoordinates: [number, number] = [lat, lng];
+
+          const parseImageUrl = (iconUrl: string) => {
+            return iconUrl.includes("https://")
+              ? iconUrl
+              : config.AVATAR_STORAGE_URL + iconUrl;
+          };
 
           // friend marker
           const friendIcon = L.icon({
             className: "friend-icon",
-            iconUrl: `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
+            iconUrl: icon
+              ? parseImageUrl(icon)
+              : `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
             iconSize: [50, 50],
           });
 

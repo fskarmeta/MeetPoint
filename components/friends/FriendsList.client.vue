@@ -7,11 +7,11 @@ onMounted(async () => {
 });
 
 const deleteFriend = async (friendId: string) => {
-  await useFetch("/api/delete-friend", {
+  userStore.handleDeleteFriend(friendId)
+  useFetch("/api/delete-friend", {
     method: "DELETE",
     body: JSON.stringify({ friendId: friendId }),
   });
-  userStore.getFriends();
 };
 
 const acceptFriend = async (friendId: string) => {
@@ -19,7 +19,7 @@ const acceptFriend = async (friendId: string) => {
     method: "POST",
     body: JSON.stringify({ friendId: friendId }),
   });
-  userStore.getFriends();
+  userStore.handleAcceptFriend(friendId);
 };
 </script>
 

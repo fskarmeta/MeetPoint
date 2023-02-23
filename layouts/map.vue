@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { Drawer as ADrawer } from "ant-design-vue";
+const client = useSupabaseAuthClient();
 
 const visible = ref(false);
+const router = useRouter();
+
+const logout = async () => {
+  await client.auth.signOut();
+  router.push("/");
+};
 </script>
 
 <template>
@@ -20,7 +27,7 @@ const visible = ref(false);
     <nav class="h-10 bg-cyan-800 flex justify-between px-10 place-items-center">
       <div @click="visible = true">Actions</div>
       <div class="flex space-x-10 place-items-center">
-        <p class="m-0 p-0">Logout</p>
+        <p class="m-0 p-0" @click="logout">Logout</p>
         <p class="m-0 p-0">Profile</p>
       </div>
     </nav>

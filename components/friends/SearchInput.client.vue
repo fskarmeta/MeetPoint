@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useUserStore } from "~~/stores/useUserStore";
+
+const userStore = useUserStore();
 const config = useRuntimeConfig();
 
 const selectedId = ref("");
@@ -21,6 +24,7 @@ const sendInvite = async () => {
   if (data?.value?.msg) {
     msg.value = data.value.msg;
   }
+  userStore.getFriends();
 };
 
 onMounted(async () => {
