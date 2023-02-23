@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import useMap from "~~/composables/useMap";
-import { useMapStore } from "~~/stores/useMapStore";
-import { useUserStore } from "~~/stores/useUserStore";
 import L from "leaflet";
 import { Ref } from "vue";
 import { Form } from "ant-design-vue";
 import { nanoid } from "nanoid";
 import { useStorage } from "@vueuse/core";
+import useMap from "~~/composables/useMap";
+import { useMapStore } from "~~/stores/useMapStore";
+import { useUserStore } from "~~/stores/useUserStore";
 import { Friends } from "../stores/useMapStore";
 
-const localStorage = useStorage("dummyFriends", [] as Friends);
+const localStoredDummyFriends = useStorage("dummyFriends", [] as Friends);
+const localStoredSelectedFriendsIds = useStorage(
+  "selectedFriendsIds",
+  [] as (string | number)[]
+);
 
 const { getUserProfile } = useUserProfile();
 
@@ -33,20 +37,46 @@ const addDummyFriendFormState = reactive({
 onMounted(async () => {
   if (process.client) {
     mapStore.calculating = true;
+    let initialLat = null;
+    let initialLng = null;
     const data = await getUserProfile();
-    mapStore.userProfile = data;
+    if (!Array.isArray(data?.coordinates)) {
+      initialLat = data?.coordinates!.latitude!;
+      initialLng = data?.coordinates!.longitude!;
+      const thisUser = {
+        username: data?.username!,
+        avatar_url: data?.avatar_url!,
+        id: data?.id!,
+        lat: initialLat,
+        lng: initialLng,
+      };
+      mapStore.friends = [thisUser];
+    }
+    console.log("profile data", data);
     await userStore.getFriends(true);
     // await nextTick();
     mapStore.map = useMap("map", {
-      center: [-33.443, -70.637],
-      zoom: 13,
+      center:
+        initialLat && initialLng
+          ? [initialLat, initialLng]
+          : [-33.443, -70.637],
+      zoom: 9,
     });
 
     if (mapStore.map) {
-      if (localStorage.value) {
-        console.log("friends at this time", mapStore.friends);
-        mapStore.friends = [...mapStore.friends, ...localStorage.value];
-        console.log("friends now", mapStore.friends);
+      if (localStoredDummyFriends.value) {
+        mapStore.friends = [
+          ...mapStore.friends,
+          ...localStoredDummyFriends.value,
+        ];
+      }
+
+      const storedSelectedIds = localStoredSelectedFriendsIds.value;
+      if (storedSelectedIds.length) {
+        const filteredIds = storedSelectedIds.filter((id) =>
+          mapStore.friends.some((obj) => obj.id === id)
+        );
+        mapStore.selectedFriendIds = filteredIds;
       }
       mapStore.map.on("click", function (env) {
         isFriendPopupOpen.value = false;
@@ -78,10 +108,10 @@ onMounted(async () => {
 watch(
   () => mapStore.selectedFriendIds,
   () => {
-    console.log("watcher called");
     mapStore.paintFriends();
     const dummyFriends = mapStore.friends.filter((f) => f.type === "local");
-    localStorage.value = dummyFriends;
+    localStoredDummyFriends.value = dummyFriends;
+    localStoredSelectedFriendsIds.value = mapStore.selectedFriendIds;
   }
 );
 
@@ -134,7 +164,9 @@ const onDeleteLocalFriend = (id: string) => {
   mapStore.selectedFriendIds = mapStore.selectedFriendIds.filter(
     (f) => f !== id
   );
-  localStorage.value = mapStore.friends.filter((f) => f.type === "local");
+  localStoredDummyFriends.value = mapStore.friends.filter(
+    (f) => f.type === "local"
+  );
 };
 </script>
 
@@ -159,7 +191,6 @@ const onDeleteLocalFriend = (id: string) => {
         </div>
       </a-form-item>
     </a-form>
-    <!-- <a-button @click="removeAddFriendMarker">Close</a-button> -->
   </div>
 
   <a-select

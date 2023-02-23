@@ -755,7 +755,6 @@ declare module '@vue/runtime-core' {
     TwitterOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/TwitterOutlined.js')['default']
     TwitterSquareFilled: typeof import('./node_modules/@ant-design/icons-vue/es/icons/TwitterSquareFilled.js')['default']
     TwoTonePrimaryColor: typeof import('./node_modules/@ant-design/icons-vue/es/components/twoTonePrimaryColor.js')['default']
-    Undefined: typeof import('./node_modules/@ant-design/icons-vue/es/index.js')['default']
     UnderlineOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/UnderlineOutlined.js')['default']
     UndoOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/UndoOutlined.js')['default']
     UngroupOutlined: typeof import('./node_modules/@ant-design/icons-vue/es/icons/UngroupOutlined.js')['default']

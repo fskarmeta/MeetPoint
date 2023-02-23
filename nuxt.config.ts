@@ -70,5 +70,6 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/map/**': { ssr: false },
+    '/register/**': { ssr: false },
   }
 });

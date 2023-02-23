@@ -29,7 +29,8 @@ const sendInvite = async () => {
 
 onMounted(async () => {
   const { data: friends } = await useFetch("/api/search-profile");
-  data.value = friends?.value?.data;
+  const foundFriends = friends?.value?.data;
+  if (foundFriends) data.value = foundFriends;
 });
 
 watch(selectedId, (val) => {

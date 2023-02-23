@@ -28,7 +28,7 @@ const acceptFriend = async (friendId: string) => {
     <FriendsSingleList
       v-slot="slotProps"
       :list="userStore.invited"
-      title="Sended Invitations"
+      title="Sent Invitations"
     >
       <p class="text-red-500" @click="deleteFriend(slotProps.id)">Cancel</p>
     </FriendsSingleList>

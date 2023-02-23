@@ -10,7 +10,7 @@ interface Friend {
     id: string;
     longitude: number;
     latitude: number;
-  };
+  } | null;
 }
 
 export const useUserStore = definePiniaStore("userStore", {
@@ -27,7 +27,12 @@ export const useUserStore = definePiniaStore("userStore", {
       this.loading = true;
       await useFetch("/api/get-friends").then((res) => {
         const friendsData = res.data;
-        if (friendsData) {
+        if (
+          friendsData &&
+          friendsData.value?.friends &&
+          friendsData.value?.invited &&
+          friendsData.value?.pending
+        ) {
           this.friends = friendsData.value?.friends;
           this.invited = friendsData.value?.invited;
           this.pending = friendsData.value?.pending;
@@ -36,12 +41,17 @@ export const useUserStore = definePiniaStore("userStore", {
             const mapStore = useMapStore();
             console.log(this.friends);
             const acceptedFriends = this.friends
-              .filter((f) => f.coordinates)
+              .filter(
+                (f) =>
+                  f.coordinates &&
+                  f.coordinates?.latitude &&
+                  f.coordinates.longitude
+              )
               .map((f) => ({
-                lat: f?.coordinates?.latitude,
-                lng: f?.coordinates?.longitude,
+                lat: f.coordinates!.latitude,
+                lng: f.coordinates!.longitude,
                 id: f.id,
-                icon: f.avatar_url,
+                avatar_url: f.avatar_url,
                 username: f.username,
               }));
             mapStore.friends = [...mapStore.friends, ...acceptedFriends];
@@ -53,14 +63,6 @@ export const useUserStore = definePiniaStore("userStore", {
     handleDeleteFriend(id: string) {
       const mapStore = useMapStore();
 
-      if (mapStore.selectedFriendIds.includes(id)) {
-        console.log("yeap");
-        mapStore.selectedFriendIds = mapStore.selectedFriendIds.filter(
-          (friendId) => friendId !== id
-        );
-        mapStore.paintFriends();
-      }
-
       if (mapStore.friends.some((f) => f.id === id)) {
         console.log("yeap friend");
         mapStore.friends = mapStore.friends.filter((f) => f.id !== id);
@@ -68,13 +70,20 @@ export const useUserStore = definePiniaStore("userStore", {
       this.invited = this.invited.filter((f) => f.id !== id);
       this.friends = this.friends.filter((f) => f.id !== id);
       this.pending = this.pending.filter((f) => f.id !== id);
+
+      if (mapStore.selectedFriendIds.includes(id)) {
+        mapStore.selectedFriendIds = mapStore.selectedFriendIds.filter(
+          (friendId) => friendId !== id
+        );
+        mapStore.paintFriends();
+      }
     },
     handleAcceptFriend(id: string) {
       const pendingFriends = this.pending;
       this.pending = this.pending.filter((f) => f.id !== id);
       const acceptedFriend = pendingFriends.find((f) => f.id === id);
       if (acceptedFriend) {
-        this.invited.push(acceptedFriend);
+        this.friends.push(acceptedFriend);
         this.getFriends(true);
       }
     },

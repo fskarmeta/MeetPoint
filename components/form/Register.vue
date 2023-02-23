@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Form } from "ant-design-vue";
+import { useMapStore } from "~~/stores/useMapStore";
+
+const mapStore = useMapStore();
 
 const user = useSupabaseUser();
 const router = useRouter();
@@ -14,6 +17,9 @@ const formState = reactive<{
   latitude: null,
   longitude: null,
 });
+
+const errorMsg = ref("");
+const successMsg = ref("");
 
 const { data: profile, refresh: refreshProfile } = await useAsyncData(
   "profiles",
@@ -49,6 +55,8 @@ const { validate, validateInfos } = useForm(formState, rulesRef);
 const onSubmit = () => {
   validate()
     .then(async () => {
+      errorMsg.value = "";
+      successMsg.value = "";
       const body = toRaw(formState);
       if (body.username && body.latitude && body.longitude) {
         const profileError = await updateUsername(body.username);
@@ -57,7 +65,33 @@ const onSubmit = () => {
           body.longitude
         );
 
+        if (profileError || coordinatesError) {
+          errorMsg.value = "something went wrong bra";
+          return;
+        }
+
+        const currentUserId = user?.value?.id;
+        console.log("llegue hasta aca", currentUserId, mapStore.friends.length);
+        if (currentUserId && mapStore.friends.length) {
+          console.log("sip");
+          const userInFriends = mapStore.friends.find(
+            (f) => f.id === currentUserId
+          );
+          if (userInFriends) {
+            console.log("found");
+            userInFriends.lat = body.latitude;
+            userInFriends.lng = body.longitude;
+            userInFriends.username = body.username;
+
+            if (mapStore.selectedFriendIds.includes(currentUserId)) {
+              console.log("is selected");
+              mapStore.paintFriends();
+            }
+          }
+        }
+
         if (!profileError && !coordinatesError) {
+          successMsg.value = "congrats, changes have been submitted :)";
           return router.push({ name: "map" });
         }
       }
@@ -78,6 +112,17 @@ onMounted(() => {
       formState.longitude = longitude;
     }
   }
+});
+
+const initialCoordinates = computed(() => {
+  const coordinates = profile.value?.coordinates;
+  if (coordinates && !Array.isArray(coordinates)) {
+    return {
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+    };
+  }
+  return null;
 });
 </script>
 <template>
@@ -101,16 +146,26 @@ onMounted(() => {
         v-bind="validateInfos.latitude"
       >
         <RegisterMap
-          :initial-coordinates="profile.coordinates"
+          :initial-coordinates="initialCoordinates"
           @onChangeCoords="onChangeCoords"
           class="w-screen md:w-500px h-100"
         />
       </a-form-item>
 
-      <div class="w-full flex justify-center mt-5">
+      <div
+        class="w-full flex justify-center flex flex-col place-items-center mt-5"
+      >
         <a-button type="primary" @click="onSubmit" html-type="submit"
           >Submit</a-button
         >
+        <div>
+          <small v-if="errorMsg" class="text-red-500 block">{{
+            errorMsg
+          }}</small>
+          <small v-if="successMsg" class="text-green-500">{{
+            successMsg
+          }}</small>
+        </div>
       </div>
     </a-form>
   </div>

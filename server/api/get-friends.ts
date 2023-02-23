@@ -45,8 +45,15 @@ export default eventHandler(async (event) => {
       .select("id, username, avatar_url")
       .in("id", getFriendIdsByInvitationType("pending"));
 
+    const parsedFriends = acceptedFriends.data?.map((f) => ({
+      ...f,
+      coordinates: Array.isArray(f.coordinates)
+        ? f.coordinates[0]
+        : f.coordinates,
+    }));
+
     const body = {
-      friends: acceptedFriends.data || [],
+      friends: parsedFriends || [],
       invited: invitatedFriends.data || [],
       pending: pendingInvitations.data || [],
     };

@@ -12,7 +12,7 @@ export type Friends = {
   lng: number;
   id: number | string;
   type?: "local";
-  icon?: string;
+  avatar_url?: string;
 }[];
 interface State {
   userProfile: any;
@@ -41,7 +41,6 @@ export const useMapStore = definePiniaStore("mapStore", {
   actions: {
     paintFriends() {
       this.calculating = true;
-      console.log("url", config.AVATAR_STORAGE_URL);
       try {
         const friends = this.selectedFriends;
         this.removeElementsFromMap();
@@ -67,7 +66,7 @@ export const useMapStore = definePiniaStore("mapStore", {
           );
         }
 
-        for (const { lat, lng, username, id, icon = "" } of friends) {
+        for (const { lat, lng, username, id, avatar_url = "" } of friends) {
           const friendCoordinates: [number, number] = [lat, lng];
 
           const parseImageUrl = (iconUrl: string) => {
@@ -79,8 +78,8 @@ export const useMapStore = definePiniaStore("mapStore", {
           // friend marker
           const friendIcon = L.icon({
             className: "friend-icon",
-            iconUrl: icon
-              ? parseImageUrl(icon)
+            iconUrl: avatar_url
+              ? parseImageUrl(avatar_url)
               : `https://avatars.dicebear.com/api/bottts/avatar${id}.svg`,
             iconSize: [50, 50],
           });

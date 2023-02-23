@@ -12,62 +12,62 @@ export interface Database {
     Tables: {
       coordinates: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          latitude: number | null
-          longitude: number | null
+          latitude: number
+          longitude: number
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id: string
-          latitude?: number | null
-          longitude?: number | null
+          latitude?: number
+          longitude?: number
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          latitude?: number | null
-          longitude?: number | null
+          latitude?: number
+          longitude?: number
         }
       }
       friends: {
         Row: {
           friend_id: string
           id: number
-          status: string | null
-          user_id: string | null
+          status: string
+          user_id: string
         }
         Insert: {
           friend_id: string
           id?: number
-          status?: string | null
-          user_id?: string | null
+          status?: string
+          user_id?: string
         }
         Update: {
           friend_id?: string
           id?: number
-          status?: string | null
-          user_id?: string | null
+          status?: string
+          user_id?: string
         }
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          created_at: string | null
+          avatar_url: string
+          created_at: string
           id: string
-          username: string | null
+          username: string
         }
         Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
+          avatar_url?: string
+          created_at?: string
           id: string
-          username?: string | null
+          username?: string
         }
         Update: {
-          avatar_url?: string | null
-          created_at?: string | null
+          avatar_url?: string
+          created_at?: string
           id?: string
-          username?: string | null
+          username?: string
         }
       }
     }
