@@ -4,11 +4,16 @@ import {
 } from "#supabase/server";
 import { Database } from "~~/types/supabase";
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) {
     throw new Error("Not authorized");
   }
+  const query = getQuery(event);
+  const username = query.username;
+
+  if (!username) return;
+
   const client = serverSupabaseServiceRole<Database>(event);
   const { id: currentUserId } = user;
 
@@ -36,7 +41,8 @@ export default eventHandler(async (event) => {
     .from("profiles")
     .select("username, id, avatar_url")
     .neq("username", null)
-    .not("id", "in", `(${profileIdsToFilterOut.join(",")})`);
+    .not("id", "in", `(${profileIdsToFilterOut.join(",")})`)
+    .like("username", `${username as string}%`);
 
   return profiles;
 });

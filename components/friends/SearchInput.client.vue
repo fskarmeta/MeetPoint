@@ -5,7 +5,10 @@ const userStore = useUserStore();
 const config = useRuntimeConfig();
 
 const selectedId = ref("");
-const data = ref([]);
+const foundUsers = ref<{ username: string; id: string; avatar_url: string }[]>(
+  []
+);
+
 const msg = ref("");
 
 const filter = (value: string, option: any) => {
@@ -23,19 +26,34 @@ const sendInvite = async () => {
 
   if (data?.value?.msg) {
     msg.value = data.value.msg;
+    foundUsers.value = [];
+    const invitedUser = foundUsers.value.find(
+      (user) => user.id == selectedId.value
+    );
+    if (invitedUser) {
+      userStore.invited.push(invitedUser);
+    }
   }
-  userStore.getFriends();
 };
 
-onMounted(async () => {
-  const { data: friends } = await useFetch("/api/search-profile");
+const fetchUsers = async (searchString: string) => {
+  const { data: friends } = await useFetch(
+    `/api/search-profile?username=${searchString}`
+  );
   const foundFriends = friends?.value?.data;
-  if (foundFriends) data.value = foundFriends;
-});
+  if (foundFriends) foundUsers.value = foundFriends;
+  else foundUsers.value = [];
+};
 
 watch(selectedId, (val) => {
   msg.value = "";
 });
+
+const onSearch = (searchString: string) => {
+  if (searchString) {
+    fetchUsers(searchString);
+  }
+};
 
 const userProfileImage = (avatarUrl: string) => {
   return avatarUrl.includes("https://")
@@ -56,9 +74,10 @@ const userProfileImage = (avatarUrl: string) => {
         :default-active-first-option="false"
         :show-arrow="false"
         :not-found-content="null"
-        :options="data"
+        :options="foundUsers"
         :field-names="{ label: 'username', value: 'id' }"
         :filter-option="filter"
+        @search="onSearch($event)"
       >
         <template #option="{ username, avatar_url }">
           <a-avatar :src="userProfileImage(avatar_url)" />
