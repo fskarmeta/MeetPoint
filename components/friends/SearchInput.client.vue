@@ -3,6 +3,7 @@ import { useUserStore } from "~~/stores/useUserStore";
 
 const userStore = useUserStore();
 const config = useRuntimeConfig();
+const loading = ref(false);
 
 const selectedId = ref("");
 const foundUsers = ref<{ username: string; id: string; avatar_url: string }[]>(
@@ -26,23 +27,25 @@ const sendInvite = async () => {
 
   if (data?.value?.msg) {
     msg.value = data.value.msg;
-    foundUsers.value = [];
     const invitedUser = foundUsers.value.find(
       (user) => user.id == selectedId.value
     );
     if (invitedUser) {
       userStore.invited.push(invitedUser);
     }
+    foundUsers.value = [];
   }
 };
 
 const fetchUsers = async (searchString: string) => {
+  loading.value = true;
   const { data: friends } = await useFetch(
     `/api/search-profile?username=${searchString}`
   );
   const foundFriends = friends?.value?.data;
   if (foundFriends) foundUsers.value = foundFriends;
   else foundUsers.value = [];
+  loading.value = false;
 };
 
 watch(selectedId, (val) => {
@@ -75,6 +78,7 @@ const userProfileImage = (avatarUrl: string) => {
         :show-arrow="false"
         :not-found-content="null"
         :options="foundUsers"
+        :loading="loading"
         :field-names="{ label: 'username', value: 'id' }"
         :filter-option="filter"
         @search="onSearch($event)"
