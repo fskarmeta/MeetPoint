@@ -15,6 +15,8 @@ const logout = async () => {
   router.push("/");
 };
 
+const windowWidth = computed(() => window.innerWidth)
+
 const login = async (
   provider: "github" | "google" | "gitlab" | "bitbucket"
 ) => {
@@ -46,22 +48,23 @@ const login = async (
         Sign in with Google</AButton
       >
     </div>
-    <small>* Only friends will be able to see your location</small>
+    <small>* Dont worry, only friends will be able to find your defined location</small>
   </AModal>
   <div class="w-full h-screen">
     <a-drawer
-      :width="500"
-      title="Basic Drawer"
+      :width="windowWidth > 500 ? 500 : windowWidth"
+      title="Configuration"
       placement="left"
       :visible="drawerVisible"
+      :closable="true"
       @close="drawerVisible = false"
       :body-Style="{ background: 'white' }"
-      :header-style="{ background: 'white', border: 'none' }"
+      :header-style="{ background: '#155e75', border: 'none' }"
     >
       <DrawerMain />
     </a-drawer>
     <nav class="h-10 bg-cyan-800 flex justify-between px-2 place-items-center">
-      <div @click="drawerVisible = true">
+      <div v-if="user" @click="drawerVisible = true">
         <ATooltip>
           <template #title>Configuration</template>
           <MenuUnfoldOutlined
