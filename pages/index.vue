@@ -1,25 +1,16 @@
-<script setup lang="ts">
-const user = useSupabaseUser();
-const client = useSupabaseAuthClient();
-const router = useRouter();
-// Login method using providers
-const login = async (
-  provider: "github" | "google" | "gitlab" | "bitbucket"
-) => {
-  const { error } = await client.auth.signInWithOAuth({ provider });
-  if (error) {
-    return alert("Something went wrong !");
-  }
-};
-
-const logout = async () => await client.auth.signOut();
-
-</script>
+<script setup lang="ts"></script>
 <template>
-  <button v-if="!user" @click="login('google')">Login with Google</button>
-  <button v-if="user" @click="logout">Logout</button>
-  <pre>
-    {{ user }}
-</pre
+  <div
+    class="flex flex-col w-full h-full justify-content-center place-items-center"
   >
+    <h1>
+      A simple application that allows you to find point X distant between
+      people on a map.
+    </h1>
+    <div>
+      <AButton type="primary" @click="$router.push('/map')"
+        >Go the the map</AButton
+      >
+    </div>
+  </div>
 </template>

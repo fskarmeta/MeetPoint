@@ -19,6 +19,21 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
   },
+  app: {
+    head: {
+      title: "MeetPoint - Find the Perfect Meeting Point with Friends",
+      meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        {
+          name: "description",
+          content:
+            "With MeetPoint, you can easily coordinate meetups with your friends in the city. Simply add everyone's location on the map and let MeetPoint find the ideal meeting point between you all. Say goodbye to the hassle of figuring out where to meet and enjoy more time with your friends instead. Download MeetPoint today and start planning your next get-together!",
+        },
+      ],
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+    },
+  },
   css: [
     "virtual:windi-base.css",
     "virtual:windi-components.css",

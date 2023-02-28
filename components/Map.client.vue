@@ -40,7 +40,7 @@ onMounted(async () => {
     let initialLat = null;
     let initialLng = null;
     const data = await getUserProfile();
-    if (!Array.isArray(data?.coordinates)) {
+    if (data && !Array.isArray(data?.coordinates)) {
       initialLat = data?.coordinates!.latitude!;
       initialLng = data?.coordinates!.longitude!;
       const thisUser = {
@@ -51,9 +51,9 @@ onMounted(async () => {
         lng: initialLng,
       };
       mapStore.friends = [thisUser];
+      await userStore.getFriends(true);
     }
-    console.log("profile data", data);
-    await userStore.getFriends(true);
+
     // await nextTick();
     mapStore.map = useMap("map", {
       center:

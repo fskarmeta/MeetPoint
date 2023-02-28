@@ -59,7 +59,6 @@ const acceptFriend = async (friendId: string) => {
           class="cursor-pointer"
           @click="deleteFriend(slotProps.id)"
         />
-        <CheckCircleOutlined />
       </ATooltip>
     </FriendsSingleList>
     <FriendsSingleList
@@ -68,13 +67,12 @@ const acceptFriend = async (friendId: string) => {
       title="Friends"
     >
       <ATooltip>
-        <template #title>Finish friendship</template>
+        <template #title>End friendship</template>
         <CloseOutlined
           :style="{ color: 'red' }"
           class="cursor-pointer"
           @click="deleteFriend(slotProps.id)"
         />
-        <CheckCircleOutlined />
       </ATooltip>
     </FriendsSingleList>
   </div>
