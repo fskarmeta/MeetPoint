@@ -1,4 +1,3 @@
-import { definePiniaStore } from "~~/.nuxt/imports";
 import { useMapStore } from "./useMapStore";
 
 interface Friend {

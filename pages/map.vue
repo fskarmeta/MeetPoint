@@ -2,7 +2,9 @@
 import MapClient from "~~/components/Map.client.vue";
 
 definePageMeta({
+  pageTransition: false,
   layout: "map",
+  middleware: "map-auth",
 });
 </script>
 <template>

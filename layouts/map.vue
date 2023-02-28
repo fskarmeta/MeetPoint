@@ -21,7 +21,7 @@ const login = async (
   const { error } = await client.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: window.location.origin + "/register",
+      redirectTo: window.location.origin + "/redirect",
     },
   });
   if (error) {

@@ -1,7 +1,5 @@
-import { definePiniaStore } from "~~/.nuxt/imports";
 import friends from "~~/utils/friends";
-import L, { marker } from "leaflet";
-import { createRandomColor } from "~~/utils/helpers";
+import L from "leaflet";
 import { centerIcon } from "~~/utils/leaflet";
 
 const config = useRuntimeConfig();
