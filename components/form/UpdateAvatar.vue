@@ -53,12 +53,12 @@ const handleChangeImage = async (info: UploadChangeParam) => {
 <template>
   <a-upload
     name="file"
-    capture="user"
     accept="image/*"
     @change="handleChangeImage"
     :multiple="false"
     :maxCount="1"
     :showUploadList="false"
+    :withCredentials="false"
   >
     <!-- <pre>{{ userProfileImage }}</pre> -->
     <a-avatar size="large" :src="userProfileImage" />
