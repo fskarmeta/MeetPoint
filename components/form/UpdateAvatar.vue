@@ -53,6 +53,8 @@ const handleChangeImage = async (info: UploadChangeParam) => {
 <template>
   <a-upload
     name="file"
+    capture="environment"
+    accept="image/*"
     @change="handleChangeImage"
     :multiple="false"
     :maxCount="1"
