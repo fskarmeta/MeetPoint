@@ -57,6 +57,7 @@ const handleChangeImage = async (info: UploadChangeParam) => {
     @change="handleChangeImage"
     :multiple="false"
     :maxCount="1"
+    :capture="undefined"
     :showUploadList="false"
     :withCredentials="false"
   >
